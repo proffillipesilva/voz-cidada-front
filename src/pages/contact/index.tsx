@@ -13,7 +13,7 @@ const Contact = () => {
             <div className="flex flex-col md:flex-row min-h-screen">
                 <div className="relative w-full h-40 md:h-auto md:w-1/2  rounded-b-[50%] md:rounded-none">
                     <img
-                        src="./images/predios2.png"/*imagem */
+                        src="/images/predios2.png"/*imagem */
                         alt="Voz Cidadão"
                         className="w-full h-full object-cover object-[center_90%] md:object-center rounded-b-[50%] md:rounded-none"
                     />
@@ -27,7 +27,7 @@ const Contact = () => {
 
                         <div className="mt-4 space-y-4 C">
                             <p className="text-md text-gray-600 text-justify lg:text-base">
-                                Se você tiver alguma dúvida, sugestão ou reclamação, não hesite em nos contactar. A equipe do Voz Cidadão está pronta para ouvir sua opinião e ajudar no que for necessário para melhorar a nossa cidade.
+                                Se você tiver alguma dúvida, sugestão ou reclamação, não hesite em nos contactar. A equipe do Voz Cidadã está pronta para ouvir sua opinião e ajudar no que for necessário para melhorar a nossa cidade.
                             </p>
 
                             <p className="text-md text-gray-600 text-justify lg:text-base">

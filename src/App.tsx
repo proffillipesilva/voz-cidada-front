@@ -83,8 +83,8 @@ const OAuthRoute = ({ children }: { children: ReactNode }) => {
 
 const App = () => {
 
-    //const [isTokenFound, setTokenFound] = useState(false);
-    //myGetToken(setTokenFound);
+    // const [isTokenFound, setTokenFound] = useState(false);
+    // myGetToken(setTokenFound);
 
     onMessageListener()
         .then((payload) => {

@@ -11,10 +11,11 @@ import authService from "@/shared/services/authServices";
 import { jwtDecode } from "jwt-decode";
 import api from "@/shared/axios";
 import funcionarioService from "./funcionarioServices.ts";
-import chamadoService from "./chamadoService.ts";
 import { ChamadoInterface } from "./types.ts";
 import FuncionarioDashboard from "../Funcionario/index.tsx";
 import toast from "react-hot-toast";
+import chamadoService from "@/shared/services/chamadoService.ts";
+import SecretariaCard from "./components/secretariaCard.tsx";
 
 // Define the structure of a Funcionario object
 interface Funcionario {
@@ -64,7 +65,7 @@ interface Funcionario {
 // ]
 
 export default function AdminDashboard() {
-    const { userRoles } = useContext(AuthContext);
+    const { userRoles, user } = useContext(AuthContext);
     
     const [showNewEmployeeDialog, setShowNewEmployeeDialog] = useState(false);
     const [showEditChamado, setShowEditChamado] = useState(false);
@@ -74,6 +75,18 @@ export default function AdminDashboard() {
     const [editingChamado, setEditingChamado] = useState<ChamadoInterface | null>(null);
     const [isloading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [chamadosObras, setChamadosObras] = useState({
+        PENDENTE: 0,
+        EM_ANDAMENTO: 0,
+        CONCLUIDO: 0,
+        TOTAL: 0
+    });
+    const [chamadosUrbanismo, setChamadosUrbanismo] = useState({
+        PENDENTE: 0,
+        EM_ANDAMENTO: 0,
+        CONCLUIDO: 0,
+        TOTAL: 0
+    });
 
     const getFuncionarios = async () => {
         try {
@@ -88,7 +101,7 @@ export default function AdminDashboard() {
 
     const getChamados = async () => {
         try {
-            const response = await chamadoService.getAllChamados(0, 10, "id,desc");
+            const response = await chamadoService.findAll({page: 0, size: 100, sort: "id,desc"});
             console.log("Chamados:", response.data._embedded.chamadoDTOList);
             const chamadosSecretariaNull = response.data._embedded.chamadoDTOList.filter((chamado: ChamadoInterface) => {
                 return chamado.secretaria === null;
@@ -98,6 +111,59 @@ export default function AdminDashboard() {
             console.error("Erro ao Buscar Chamados:", error);
         }
     }
+
+    const getChamadosCountByStatus = async (secretaria: string) => {
+        try {
+            const response = await chamadoService.countBySecretaria(secretaria);
+            // Inicializa com valores padrão 0
+            const counts = {
+                PENDENTE: 0,
+                EM_ANDAMENTO: 0,
+                CONCLUIDO: 0
+            };
+            
+            // Mapeia os dados da resposta
+            if (Array.isArray(response.data)) {
+                response.data.forEach(([status, count]) => {
+                    if (typeof status === 'string') {
+                        const normalizedStatus = status.toUpperCase().trim();
+                        if (normalizedStatus.includes('PENDENTE')) {
+                            counts.PENDENTE = Number(count) || 0;
+                        } else if (normalizedStatus.includes('EM ANDAMENTO') || normalizedStatus.includes('EM_ANDAMENTO')) {
+                            counts.EM_ANDAMENTO = Number(count) || 0;
+                        } else if (normalizedStatus.includes('CONCLUÍDO') || normalizedStatus.includes('CONCLUIDO')) {
+                            counts.CONCLUIDO = Number(count) || 0;
+                        }
+                    }
+                });
+            }
+            
+            return {
+                ...counts,
+                TOTAL: counts.PENDENTE + counts.EM_ANDAMENTO + counts.CONCLUIDO
+            };
+        } catch (error) {
+            console.error(`Erro ao contar chamados em ${secretaria}:`, error);
+            return {
+                PENDENTE: 0,
+                EM_ANDAMENTO: 0,
+                CONCLUIDO: 0,
+                TOTAL: 0
+            };
+        }
+    };
+
+    // Atualize o useEffect para buscar as contagens
+    useEffect(() => {
+        const fetchCounts = async () => {
+            const obrasData = await getChamadosCountByStatus("OBRAS");
+            setChamadosObras(obrasData);
+            
+            const urbanismoData = await getChamadosCountByStatus("URBANISMO");
+            setChamadosUrbanismo(urbanismoData);
+        };
+        fetchCounts();
+    }, []);
 
     useEffect(() => {
         const fetchFuncionarios = async () => {
@@ -183,7 +249,10 @@ export default function AdminDashboard() {
 
             console.log("Chamado atualizado:", updatedChamado);
             
-            await chamadoService.updateChamado(updatedChamado);
+            if (typeof user?.authUserId !== "number") {
+                throw new Error("authUserId is required and must be a number");
+            }
+            await chamadoService.update(updatedChamado);
             console.log("Chamado atualizado com sucesso:", data);
             await getChamados();
             setShowEditChamado(false);
@@ -250,10 +319,10 @@ export default function AdminDashboard() {
                         <div className="flex items-center justify-between mb-4">
                             <div className="inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500">
                                 <button
-                                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${activeTab === "sectors" ? "bg-white text-gray-900 shadow-sm" : ""}`}
+                                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${activeTab === "menu" ? "bg-white text-gray-900 shadow-sm" : ""}`}
                                     onClick={() => setActiveTab("menu")}
                                 >
-                                    Setores
+                                    Menu
                                 </button>
                                 <button
                                     className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${activeTab === "employees" ? "bg-white text-gray-900 shadow-sm" : ""}`}
@@ -297,45 +366,24 @@ export default function AdminDashboard() {
                                             <div>
                                                 Chamados sem atribuição: <span className="font-medium">{chamados.length}</span>
                                             </div>
-                                            
                                         </div>
                                     </div>
                                 </div>
-                                <div className="rounded-lg border bg-white shadow">
-                                    <div className="p-4 pb-2 flex flex-row items-center justify-between border-b">
-                                        <h3 className="text-lg font-medium">Obras Públicas</h3>
-                                    </div>
-                                    <div className="p-4">
-                                        <div className="text-sm text-gray-500 mb-2">
-                                            Responsável por manutenção de vias e obras públicas
-                                        </div>
-                                        <div className="flex items-center justify-between text-sm">
-                                            <div>
-                                                Funcionários: <span className="font-medium">{funcionarios.filter((f) => f.secretaria === "OBRAS").length}</span>
-                                            </div>
-                                            <div>
-                                            Chamados Total: <span className="font-medium">{chamados.filter(chamado => chamado.secretaria == "OBRAS").length}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                
+                                <SecretariaCard
+                                    title="Obras Públicas"
+                                    description="Gerencie os funcionários e chamados relacionados às obras públicas."
+                                    funcionariosCount={funcionarios.filter(f => f.secretaria === "OBRAS").length}
+                                    chamadosData={chamadosObras} // TODO: fetch and store real data in state, then pass here
+                                />
 
-                                <div className="rounded-lg border bg-white shadow">
-                                    <div className="p-4 pb-2 flex flex-row items-center justify-between border-b">
-                                        <h3 className="text-lg font-medium">Urbanismo</h3>
-                                    </div>
-                                    <div className="p-4">
-                                        <div className="text-sm text-gray-500 mb-2">Responsável pelo planejamento do espaço urbano</div>
-                                        <div className="flex items-center justify-between text-sm">
-                                            <div>
-                                                Funcionários: <span className="font-medium">{funcionarios.filter((f) => f.secretaria === "URBANISMO").length}</span>
-                                            </div>
-                                            <div>
-                                            Chamados Total: <span className="font-medium">{chamados.filter(chamado => chamado.secretaria == "URBANISMO").length}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <SecretariaCard
+                                    title="Urbanismo"
+                                    description="Gerencie os funcionários e chamados relacionados ao urbanismo."
+                                    funcionariosCount={funcionarios.filter(f => f.secretaria === "URBANISMO").length}
+                                    chamadosData={chamadosUrbanismo} // TODO: fetch and store real data in state, then pass here
+                                />
+
                             </div>
                         </div>
 
@@ -454,7 +502,18 @@ export default function AdminDashboard() {
             {showNewEmployeeDialog && (
                 <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
                     <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-                        <form onSubmit={handleSubmit(handleSubmitFuncionario)} className="flex flex-col p-6">
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSubmit(handleSubmitFuncionario)
+                            }
+                        }
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSubmit(handleSubmitFuncionario)(e);
+                            }
+                        }}
+                         className="flex flex-col p-6">
                             <div className="flex flex-col space-y-1.5 pb-6 border-b">
                                 <h2 className="text-lg font-semibold leading-none tracking-tight">Cadastrar Novo Funcionário</h2>
                             </div>

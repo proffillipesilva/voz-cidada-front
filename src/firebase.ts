@@ -14,28 +14,23 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 
-interface SetTokenFound {
-    (found: boolean): void;
-}
-
-export const myGetToken = (setTokenFound: SetTokenFound): Promise<void> => {
-    return getToken(messaging, {vapidKey: 'BEfW3IXFYmtQi3T0dCXnQO-Fty4YcoxI-75AyhJmdwcsYO-_GvTuZsWpkM7kEkeWq9Pdu731JKoZb8Vb7VNTpwU'})
-        .then((currentToken: string | undefined) => {
-            if (currentToken) {
-                console.log('current token for client: ', currentToken);
-                setTokenFound(true);
-                notificationService.setToken(currentToken)
-                // Track the token -> client mapping, by sending to backend server
-                // show on the UI that permission is secured
-            } else {
-                console.log('No registration token available. Request permission to generate one.');
-                setTokenFound(false);
-                // shows on the UI that permission is required
-            }
-        }).catch((err: unknown) => {
-            console.log('An error occurred while retrieving token. ', err);
-            // catch error while creating client token
-        });
+export const myGetToken = (setTokenFound: (found: boolean) => void) => {
+    return getToken(messaging, {vapidKey: 'BEfW3IXFYmtQi3T0dCXnQO-Fty4YcoxI-75AyhJmdwcsYO-_GvTuZsWpkM7kEkeWq9Pdu731JKoZb8Vb7VNTpwU'}).then((currentToken) => {
+        if (currentToken) {
+            console.log('current token for client: ', currentToken);
+            setTokenFound(true);
+            notificationService.setToken(currentToken)
+            // Track the token -> client mapping, by sending to backend server
+            // show on the UI that permission is secured
+        } else {
+            console.log('No registration token available. Request permission to generate one.');
+            setTokenFound(false);
+            // shows on the UI that permission is required
+        }
+    }).catch((err) => {
+        console.log('An error occurred while retrieving token. ', err);
+        // catch error while creating client token
+    });
 }
 
 export const onMessageListener = () =>

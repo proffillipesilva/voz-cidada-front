@@ -18,8 +18,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { FileText, Filter } from "lucide-react"
-import ChamadosCarousel from '../Home/components/carousel';
+import { FileText, Filter } from "lucide-react";
 import { ChamadoInterface, Status } from '@/shared/types';
 import Rating from '@mui/material/Rating';
 import HistoricoChamado from '@/components/HistoricoChamado';
@@ -439,11 +438,6 @@ export default function Dashboard() {
           </>
         )
       }
-      
-      <div className="container mx-auto py-10 mb-10">
-      <h1 className='text-center text-2xl font-montserrat mb-3 text-[--cor-primaria]'>SAIBA MAIS SOBRE NOSSAS MELHORIAS:</h1>
-        <ChamadosCarousel/>
-      </div>
 
       {/* Open Call Button */}
       <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center p-4 ">
