@@ -11,11 +11,11 @@ import authService from "@/shared/services/authServices";
 import { jwtDecode } from "jwt-decode";
 import api from "@/shared/axios";
 import funcionarioService from "./funcionarioServices.ts";
-import { ChamadoInterface } from "./types.ts";
 import FuncionarioDashboard from "../Funcionario/index.tsx";
 import toast from "react-hot-toast";
 import chamadoService from "@/shared/services/chamadoService.ts";
 import SecretariaCard from "./components/secretariaCard.tsx";
+import { ChamadoInterface } from "@/shared/types.ts";
 
 // Define the structure of a Funcionario object
 interface Funcionario {
@@ -65,7 +65,7 @@ interface Funcionario {
 // ]
 
 export default function AdminDashboard() {
-    const { userRoles, user } = useContext(AuthContext);
+    const { userRoles } = useContext(AuthContext);
     
     const [showNewEmployeeDialog, setShowNewEmployeeDialog] = useState(false);
     const [showEditChamado, setShowEditChamado] = useState(false);
@@ -249,9 +249,6 @@ export default function AdminDashboard() {
 
             console.log("Chamado atualizado:", updatedChamado);
             
-            if (typeof user?.authUserId !== "number") {
-                throw new Error("authUserId is required and must be a number");
-            }
             await chamadoService.update(updatedChamado);
             console.log("Chamado atualizado com sucesso:", data);
             await getChamados();
@@ -296,6 +293,57 @@ export default function AdminDashboard() {
             f.secretaria.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }
+
+    const [mediaObras, setMediaObras] = useState<number | null>(null);
+    const [mediaUrbanismo, setMediaUrbanismo] = useState<number | null>(null);
+
+    const findAllChamados = async () => {
+        try {
+            const response = await Promise.all([
+                chamadoService.findBySecretaria({secretaria: "OBRAS", page: 0, size: 100}),
+                chamadoService.findBySecretaria({secretaria: "URBANISMO", page: 0, size: 100})
+            ]);
+            
+            // Processamento para OBRAS
+            let totalAvaliacaoObras = 0;
+            let somaObras = 0;
+            
+            if (response[0].data._embedded?.chamadoDTOList) {
+                response[0].data._embedded.chamadoDTOList.forEach((chamado: ChamadoInterface) => {
+                    if (chamado.avaliacao?.estrelas) {
+                        totalAvaliacaoObras += 1;
+                        somaObras += chamado.avaliacao.estrelas;
+                    }
+                });
+            }
+            
+            setMediaObras(totalAvaliacaoObras > 0 ? somaObras / totalAvaliacaoObras : null);
+
+            // Processamento para URBANISMO
+            let totalAvaliacaoUrbanismo = 0;
+            let somaUrbanismo = 0;
+            
+            if (response[1].data._embedded?.chamadoDTOList) {
+                response[1].data._embedded.chamadoDTOList.forEach((chamado: ChamadoInterface) => {
+                    if (chamado.avaliacao?.estrelas) {
+                        totalAvaliacaoUrbanismo += 1;
+                        somaUrbanismo += chamado.avaliacao.estrelas;
+                    }
+                });
+            }
+            
+            setMediaUrbanismo(totalAvaliacaoUrbanismo > 0 ? somaUrbanismo / totalAvaliacaoUrbanismo : null);
+
+        } catch (error) {
+            console.error("Error fetching chamados:", error);
+            setMediaObras(null);
+            setMediaUrbanismo(null);
+        }
+    }
+
+    useEffect(() => {
+        findAllChamados();
+    }, []);
 
     if (userRoles?.includes("ROLE_OWNER")) return (
         <div className="flex min-h-screen flex-col">
@@ -375,6 +423,7 @@ export default function AdminDashboard() {
                                     description="Gerencie os funcionários e chamados relacionados às obras públicas."
                                     funcionariosCount={funcionarios.filter(f => f.secretaria === "OBRAS").length}
                                     chamadosData={chamadosObras} // TODO: fetch and store real data in state, then pass here
+                                    media={mediaObras} // Pass the media value for Obras
                                 />
 
                                 <SecretariaCard
@@ -382,6 +431,7 @@ export default function AdminDashboard() {
                                     description="Gerencie os funcionários e chamados relacionados ao urbanismo."
                                     funcionariosCount={funcionarios.filter(f => f.secretaria === "URBANISMO").length}
                                     chamadosData={chamadosUrbanismo} // TODO: fetch and store real data in state, then pass here
+                                    media={mediaUrbanismo} // Pass the media value for Urbanismo
                                 />
 
                             </div>
