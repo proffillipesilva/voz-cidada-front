@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 
 export default function SignIn() {
 
-    const [ token, setTokenFound] = useState(false);
+    const [ , setTokenFound] = useState(false);
 
     const SignInSchema = z.object({
         login: z.string()
