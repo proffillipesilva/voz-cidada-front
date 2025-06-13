@@ -1,6 +1,7 @@
 import {initializeApp} from 'firebase/app';
 import {getMessaging, getToken, onMessage} from "firebase/messaging";
 import notificationService from "@/shared/services/notificationService.ts";
+import {toast} from "react-hot-toast";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -37,6 +38,11 @@ export const onMessageListener = () =>
     new Promise((resolve) => {
         onMessage(messaging, (payload) => {
             console.log('Message received:', payload);
+            toast.success((payload as any).notification && (payload as any).notification.body, {
+                duration: 4000,
+                position: "top-center",
+            })
             resolve(payload);
+            
         });
     });

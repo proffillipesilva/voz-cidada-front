@@ -86,7 +86,7 @@ const App = () => {
 
     const GOOGLE_CLIENT_ID=import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-     const [isTokenFound, setTokenFound] = useState(false);
+     const [, setTokenFound] = useState(false);
      myGetToken(setTokenFound);
 
     onMessageListener()
