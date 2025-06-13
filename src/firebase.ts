@@ -3,7 +3,7 @@ import {getMessaging, getToken, onMessage} from "firebase/messaging";
 import notificationService from "@/shared/services/notificationService.ts";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD8hGCL-jDEiWJYd0PbWYPpYtF-VNt7n24",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: "fir-3mod25.firebaseapp.com",
     projectId: "fir-3mod25",
     storageBucket: "fir-3mod25.firebasestorage.app",
@@ -15,7 +15,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 
 export const myGetToken = (setTokenFound: (found: boolean) => void) => {
-    return getToken(messaging, {vapidKey: 'BEfW3IXFYmtQi3T0dCXnQO-Fty4YcoxI-75AyhJmdwcsYO-_GvTuZsWpkM7kEkeWq9Pdu731JKoZb8Vb7VNTpwU'}).then((currentToken) => {
+    return getToken(messaging, {vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY}).then((currentToken) => {
         if (currentToken) {
             console.log('current token for client: ', currentToken);
             setTokenFound(true);
