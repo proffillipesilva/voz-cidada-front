@@ -1,4 +1,5 @@
-import { ReactNode, useContext/*, useState*/ } from "react";
+import { ReactNode, useContext,/*, useState*/ 
+useState} from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext, AuthProvider } from "@/contexts/AuthContext.tsx";
 import About from "@/pages/about/index.tsx";
@@ -14,7 +15,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import OAuthSignUp from "@/pages/OAuthSignUp";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home/index.tsx";
-import {/*myGetToken,*/ onMessageListener} from "./firebase.ts"
+import {myGetToken, onMessageListener} from "./firebase.ts"
 
 type RouteProps = {
     children: ReactNode;
@@ -83,8 +84,10 @@ const OAuthRoute = ({ children }: { children: ReactNode }) => {
 
 const App = () => {
 
-    // const [isTokenFound, setTokenFound] = useState(false);
-    // myGetToken(setTokenFound);
+    const GOOGLE_CLIENT_ID=import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+     const [isTokenFound, setTokenFound] = useState(false);
+     myGetToken(setTokenFound);
 
     onMessageListener()
         .then((payload) => {
@@ -95,7 +98,7 @@ const App = () => {
         });
 
     return (
-        <GoogleOAuthProvider clientId="518788781560-5kjacjm9okd3cnofcs2beq2e6nb7br12.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <BrowserRouter>
                 <AuthProvider>
                     <Routes>
