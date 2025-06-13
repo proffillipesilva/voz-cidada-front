@@ -1,6 +1,5 @@
 import {initializeApp} from 'firebase/app';
 import {getMessaging, getToken, onMessage} from "firebase/messaging";
-import notificationService from "@/shared/services/notificationService.ts";
 import {toast} from "react-hot-toast";
 
 const firebaseConfig = {
@@ -20,14 +19,16 @@ export const myGetToken = (setTokenFound: (found: boolean) => void) => {
         if (currentToken) {
             console.log('current token for client: ', currentToken);
             setTokenFound(true);
-            notificationService.setToken(currentToken)
+            //notificationService.setToken(currentToken)
             // Track the token -> client mapping, by sending to backend server
             // show on the UI that permission is secured
+            return currentToken;
         } else {
             console.log('No registration token available. Request permission to generate one.');
             setTokenFound(false);
             // shows on the UI that permission is required
         }
+        
     }).catch((err) => {
         console.log('An error occurred while retrieving token. ', err);
         // catch error while creating client token
