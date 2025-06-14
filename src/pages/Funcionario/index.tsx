@@ -480,7 +480,7 @@ export default function FuncionarioDashboard() {
                                                                             ) : (
                                                                                 <div className="relative w-full aspect-video rounded-lg overflow-hidden">
                                                                                     <img
-                                                                                        src={chamado.fotoAntesUrl}
+                                                                                        src={imageAntesUrl || "/placeholder.svg"}
                                                                                         alt="Foto do chamado"
                                                                                         className="object-cover w-full h-full"
                                                                                     />

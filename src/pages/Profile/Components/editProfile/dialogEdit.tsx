@@ -49,6 +49,14 @@ const DialogEdit = ({ onClose }: DialogEditProps) => {
     });
 
     const onSubmit = async (data: editProfileData) => {
+    if (data.name && data.name.trim().length < 3) {
+        toast.error('O nome deve ter pelo menos 3 caracteres.');
+        return;
+    }
+    if (!data.name && !data.birthDate) {
+            toast.error('Preencha pelo menos um campo para atualizar o perfil.');
+            return;
+        }
         toast.promise(
             async () => {
                 try {

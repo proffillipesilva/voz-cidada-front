@@ -443,7 +443,7 @@ export default function Dashboard() {
       }
 
       {/* Open Call Button */}
-      <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center p-4 ">
+      <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center mb-2">
             <BotaoChamado onClick={() => setNovoChamadoDialogOpen(true)}/>
       </div>
       <GetChamadoDialog

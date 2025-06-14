@@ -224,40 +224,61 @@ export default function AdminDashboard() {
     });
 
     async function handleSubmitFuncionario(data: FuncionarioData) {
-        await authService.registerAdmin({ login: data.email, password: data.senha });
-        const { data: { accessToken } }: any = await authService.login({ login: data.email, password: data.senha });
-        const jwt = jwtDecode<JWTClaims>(accessToken);
-        await funcionarioService.createAdminProfile({ authId: jwt.sub, cpf: data.cpf, cargo: data.cargo, secretaria: data.secretaria });
-        await getFuncionarios();
-        setShowNewEmployeeDialog(false);
-        reset({
-            cpf: "",
-            cargo: "",
-            secretaria: undefined,
-            email: "",
-            senha: ""
-        });
+        toast.promise(
+            async () => {
+                await authService.registerAdmin({ login: data.email, password: data.senha });
+                const { data: { accessToken } }: any = await authService.login({ login: data.email, password: data.senha });
+                const jwt = jwtDecode<JWTClaims>(accessToken);
+                await funcionarioService.createAdminProfile({ authId: jwt.sub, cpf: data.cpf, cargo: data.cargo, secretaria: data.secretaria });
+                await getFuncionarios();
+                setShowNewEmployeeDialog(false);
+                reset({
+                    cpf: "",
+                    cargo: "",
+                    secretaria: undefined,
+                    email: "",
+                    senha: ""
+                });
+            },
+            {
+                loading: "Criando funcionário...",
+                success: "Funcionário criado com sucesso!",
+                error: (error) => `Erro ao criar funcionário: ${error.message || "Erro desconhecido"}`
+            }
+        )
+        
     }
 
     async function handleSubmitChamadoEdit(data: ChamadoData) {
         if (!editingChamado) return;
-        
-        try {
-            const updatedChamado = {
-                ...editingChamado,
-                secretaria: data.secretaria || editingChamado.secretaria,
-            };
 
-            console.log("Chamado atualizado:", updatedChamado);
-            
-            await chamadoService.update(updatedChamado);
-            console.log("Chamado atualizado com sucesso:", data);
-            await getChamados();
-            setShowEditChamado(false);
-            setEditingChamado(null);
-        } catch (error) {
-            console.error("Erro ao atualizar chamado:", error);
-        }
+        toast.promise(
+            async () => {
+                try {
+                    const updatedChamado = {
+                        ...editingChamado,
+                        secretaria: data.secretaria || editingChamado.secretaria,
+                    };
+
+                    console.log("Chamado atualizado:", updatedChamado);
+                    
+                    await chamadoService.update(updatedChamado);
+                    console.log("Chamado atualizado com sucesso:", data);
+                    await getChamados();
+                    setShowEditChamado(false);
+                    setEditingChamado(null);
+                } catch (error) {
+                    console.error("Erro ao atualizar chamado:", error);
+                }
+            },
+            {
+                loading: "Atualizando chamado...",
+                success: "Chamado atualizado com sucesso!",
+                error: (error) => `Erro ao atualizar chamado: ${error.message || "Erro desconhecido"}`
+            }
+        )
+        
+        
     }
 
     async function handleDeleteFuncionario(id: number): Promise<void> {    

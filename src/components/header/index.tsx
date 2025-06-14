@@ -73,12 +73,6 @@ function Header() {
                         </span>
                     </div>
 
-                    {!rotasOcultas.includes(location.pathname) && (
-                        <Link to={'/dashboard'} className="hidden md:block">
-                            <BotaoChamado className="bg-[--cor-secundaria4] font-montserrat text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors" />
-                        </Link>
-                    )}
-
                     {/* Botão Menu Mobile */}
                     <button
                         onClick={() => setShowMenu(!showMenu)}

@@ -14,7 +14,7 @@ import SignUp from "./pages/SignUp/index.tsx";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import OAuthSignUp from "@/pages/OAuthSignUp";
 import { Toaster } from "react-hot-toast";
-import Home from "./pages/Home/index.tsx";
+
 import {myGetToken, onMessageListener} from "./firebase.ts"
 
 type RouteProps = {
@@ -140,15 +140,6 @@ const App = () => {
                         />
 
 
-                        {/* ROTAS AUTENTICADAS GERAIS */}
-                        <Route
-                            path="/home"
-                            element={
-                                <PrivateRoute>
-                                    <Home />
-                                </PrivateRoute>
-                            }
-                        />
                         <Route
                             path="/dashboard"
                             element={
