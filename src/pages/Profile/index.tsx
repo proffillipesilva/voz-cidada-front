@@ -12,9 +12,11 @@ import { z } from 'zod'
 import BlocoConfirmacao from './Components/BlocoDeConfirmacao.tsx'
 import { Link } from 'react-router'
 import toast from 'react-hot-toast'
+import ButtonEdit from './Components/editProfile/buttonEdit.tsx'
+import DialogEdit from './Components/editProfile/dialogEdit.tsx'
 
 const Profile = () => {
-  const { isGoogleUser, user, getCepApi, updateUser } = useContext(AuthContext)
+  const { isGoogleUser, user, getCepApi, updateCep } = useContext(AuthContext)
 
   const [cep, setCep] = useState(user?.cep || "12345-678");
   const [rua, setRua] = useState(user?.rua || "");
@@ -27,6 +29,7 @@ const Profile = () => {
   const [isError, setIsError] = useState(false)
   const [confirmation, setConfirmation] = useState(false)
   const [hasChanges, setHasChanges] = useState(true)
+  const [openDialogEdit, setOpenDialogEdit] = useState(false)
 
   const updateUserSchema = z.object({
     cep: z.string()
@@ -99,7 +102,7 @@ const Profile = () => {
     toast.promise(
       async() => {
         console.log(data)
-        await updateUser(data)
+        await updateCep(data)
         setConfirmation(false) // Fechar o pop-up após a confirmação
         setHasChanges(true)
       },
@@ -141,31 +144,37 @@ const Profile = () => {
         <div className='flex flex-col items gap-4 w-xl pb-4 border-b-2 md:border-r-2 border-grey'>
           <CardHeader>
             <CardTitle><h1 className='font-montserrat text-[--cor-primaria2] text-2xl'>Informações Pessoais</h1></CardTitle>
-            <CardDescription><p className='font-lato text-md sm:text-md md:text-lg'>Suas informações pessoais não podem ser modificadas.</p></CardDescription>
+            <CardDescription><p className='font-lato text-md sm:text-md md:text-lg'>Suas informações pessoais como o CPF não pode ser modificado.</p></CardDescription>
           </CardHeader>
           <div className="grid font-lato gap-2 pl-8 pr-8">
             <div className="flex items-center justify-between">
               <Label htmlFor="name">Nome Completo</Label>
               <LockIcon className="h-4 w-4 text-muted-foreground" />
             </div>
-            <Input id="name" value={user? user.nome : 'Nome_Cidadão'} disabled className="bg-muted/50" />
+            <div className="flex gap-2 items-center">
+              <Input id="name" value={user? user.nome : 'Nome_Cidadão'} disabled className="bg-muted/50" />
+            </div>
           </div>
           
-          { !isGoogleUser && <div className="grid font-lato gap-2 pl-8 pr-8">
+          <div className="grid font-lato gap-2 pl-8 pr-8">
             <div className="flex items-center justify-between">
               <Label htmlFor="cpf">CPF</Label>
               <LockIcon className="h-4 w-4 text-muted-foreground" />
             </div>
             <Input id="cpf" value={user? user.cpf : '123.456.789-00'} disabled className="bg-muted/50" />
-          </div>}
+          </div>
 
-          { !isGoogleUser && <div className="grid font-lato gap-2 pl-8 pr-8">
+          <div className="grid font-lato gap-2 pl-8 pr-8">
             <div className="flex items-center justify-between">
               <Label htmlFor="name">Data de Nascimento</Label>
               <LockIcon className="h-4 w-4 text-muted-foreground" />
             </div>
             <Input id="name" type='date' value={user? user.dataNascimento : ''} disabled className="bg-muted/50" />
-          </div>}
+            <ButtonEdit onClick={() => setOpenDialogEdit(true)}/>
+          </div>
+    
+          
+          <hr className=''/>
 
           { !isGoogleUser && <Button className='mx-auto bg-[--cor-primaria] hover:bg-[#162547] w-48'>
             <Link to='/redefinir-senha' className='text-white'>Redefinição de Senha</Link>
@@ -245,6 +254,11 @@ const Profile = () => {
             </CardContent>
         </div>
       </div>
+      {openDialogEdit && (
+        <DialogEdit
+          onClose={() => setOpenDialogEdit(false)}
+        />
+      )}
     </div>
   )
 }

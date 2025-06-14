@@ -25,90 +25,91 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import HistoricoChamado from "@/components/HistoricoChamado";
 import toast from "react-hot-toast";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../Chamados/components/CreateChamadoDialog";
+import RefreshButton from "@/components/refreshButton/refreshButton";
 
-const chamadosInventados: ChamadoInterface[] = [
-  {
-    id: 1,
-    usuarioId: 1,
-    titulo: "Problema com a internet",
-    descricao: "A internet está muito lenta.",
-    secretaria: "URBANISMO",
-    dataAbertura: "2023-10-01 10:00:00",
-    status: "EM ANDAMENTO",
-    latitude: null,
-    longitude: null,
-    fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-    fotoDepoisUrl: null,
-    avaliacao: null,
-    historicos: [
-      {
-        id: 1,
-        chamadoId: 1,
-        funcionarioId: 1,
-        dataModificacao: "2023-10-01 11:00:00",
-        observacao: "Chamado aberto.",
-        statusAnterior: "PENDENTE",
-        statusNovo: "EM ANDAMENTO"
-      },
-      {
-        id: 2,
-        chamadoId: 1,
-        funcionarioId: 1,
-        dataModificacao: "2023-10-02 12:00:00",
-        observacao: "Técnico agendado para amanhã.",
-        statusAnterior: "EM ANDAMENTO",
-        statusNovo: "EM ANDAMENTO"
-      }
-    ]
-  },
-  {
-    id: 2,
-    usuarioId: 1,
-    titulo: "Buraco na rua",
-    descricao: "Há um buraco grande na rua principal.",
-    secretaria: "INFRAESTRUTURA",
-    dataAbertura: "2023-10-02 11:00:00",
-    status: "CONCLUÍDO",
-    latitude: null,
-    longitude: null,
-    fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-    fotoDepoisUrl: null,
-    avaliacao: null,
-    historicos: []
-  },
-  {
-    id: 3,
-    usuarioId: 1,
-    titulo: "Lixo acumulado",
-    descricao: "Há lixo acumulado na esquina da minha rua",
-    secretaria: "SAÚDE",
-    dataAbertura: "2023-10-03 12:00:00",
-    status: "CONCLUÍDO",
-    latitude: null,
-    longitude: null,
-    fotoAntesUrl: null,
-    fotoDepoisUrl: null,
-    avaliacao: {
-      id: 1,
-      chamadoId: 3,
-      usuarioId: 1,
-      estrelas: 5,
-      comentario: "Ótimo atendimento!",
-      dataAvaliacao: "2023-10-04 13:00:00"
-    },
-    historicos: [
-        {
-            id: 1,
-            chamadoId: 3,
-            funcionarioId: 1,
-            dataModificacao: "2023-10-03 13:00:00",
-            observacao: "Chamado concluído.",
-            statusAnterior: "EM ANDAMENTO",
-            statusNovo: "CONCLUÍDO"
-        }
-    ]
-  },
-]
+// const chamadosInventados: ChamadoInterface[] = [
+//   {
+//     id: 1,
+//     usuarioId: 1,
+//     titulo: "Problema com a internet",
+//     descricao: "A internet está muito lenta.",
+//     secretaria: "URBANISMO",
+//     dataAbertura: "2023-10-01 10:00:00",
+//     status: "EM ANDAMENTO",
+//     latitude: null,
+//     longitude: null,
+//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
+//     fotoDepoisUrl: null,
+//     avaliacao: null,
+//     historicos: [
+//       {
+//         id: 1,
+//         chamadoId: 1,
+//         funcionarioId: 1,
+//         dataModificacao: "2023-10-01 11:00:00",
+//         observacao: "Chamado aberto.",
+//         statusAnterior: "PENDENTE",
+//         statusNovo: "EM ANDAMENTO"
+//       },
+//       {
+//         id: 2,
+//         chamadoId: 1,
+//         funcionarioId: 1,
+//         dataModificacao: "2023-10-02 12:00:00",
+//         observacao: "Técnico agendado para amanhã.",
+//         statusAnterior: "EM ANDAMENTO",
+//         statusNovo: "EM ANDAMENTO"
+//       }
+//     ]
+//   },
+//   {
+//     id: 2,
+//     usuarioId: 1,
+//     titulo: "Buraco na rua",
+//     descricao: "Há um buraco grande na rua principal.",
+//     secretaria: "INFRAESTRUTURA",
+//     dataAbertura: "2023-10-02 11:00:00",
+//     status: "CONCLUÍDO",
+//     latitude: null,
+//     longitude: null,
+//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
+//     fotoDepoisUrl: null,
+//     avaliacao: null,
+//     historicos: []
+//   },
+//   {
+//     id: 3,
+//     usuarioId: 1,
+//     titulo: "Lixo acumulado",
+//     descricao: "Há lixo acumulado na esquina da minha rua",
+//     secretaria: "SAÚDE",
+//     dataAbertura: "2023-10-03 12:00:00",
+//     status: "CONCLUÍDO",
+//     latitude: null,
+//     longitude: null,
+//     fotoAntesUrl: null,
+//     fotoDepoisUrl: null,
+//     avaliacao: {
+//       id: 1,
+//       chamadoId: 3,
+//       usuarioId: 1,
+//       estrelas: 5,
+//       comentario: "Ótimo atendimento!",
+//       dataAvaliacao: "2023-10-04 13:00:00"
+//     },
+//     historicos: [
+//         {
+//             id: 1,
+//             chamadoId: 3,
+//             funcionarioId: 1,
+//             dataModificacao: "2023-10-03 13:00:00",
+//             observacao: "Chamado concluído.",
+//             statusAnterior: "EM ANDAMENTO",
+//             statusNovo: "CONCLUÍDO"
+//         }
+//     ]
+//   },
+// ]
 
 export function formatDate(dateString: string) {
     if (!dateString) return ""
@@ -154,7 +155,7 @@ export function getStatusBadge(status: string) {
 export default function FuncionarioDashboard() {
     const { userRoles, admin, loading } = useContext(AuthContext)
 
-    const [chamados, setChamados] = useState<ChamadoInterface[]>([...chamadosInventados])//
+    const [chamados, setChamados] = useState<ChamadoInterface[]>([])//
 
     const [filteredChamados, setFilteredChamados] = useState<ChamadoInterface[]>([])//
     const [activeFilter, setActiveFilter] = useState("todos") //
@@ -407,8 +408,9 @@ export default function FuncionarioDashboard() {
                                                 </TabsList>
                                             </Tabs>
                                         </div>
-
+                                        <RefreshButton refresh={fetchChamados} className="mb-4" />
                                         <div className="rounded-md border overflow-auto h-[500px]">
+                                            
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>

@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import chamadoService from "@/shared/services/chamadoService.ts";
 import SecretariaCard from "./components/secretariaCard.tsx";
 import { ChamadoInterface } from "@/shared/types.ts";
+import RefreshButton from "@/components/refreshButton/refreshButton.tsx";
 
 // Define the structure of a Funcionario object
 interface Funcionario {
@@ -504,11 +505,14 @@ export default function AdminDashboard() {
                         {/* Chamados Tab content */}
                         <div className={activeTab === "chamados" ? "block" : "hidden"}>
                             <h1 className="font-montserrat font-bold text-center text-2xl text-[--cor-primaria]">CHAMADOS NÃO ATRIBUÍDOS:</h1>
+                            <RefreshButton refresh={getChamados} className="mb-4" />
                             <div className="rounded-lg border font-lato bg-white shadow">
+                                
                                 {chamados.length === 0 ? (
                                     <div className="p-4 text-center text-gray-500">Nenhum chamado atribuído.</div>
                                 ) : (
                                     <div className="overflow-x-auto">
+                                        
                                         <table className="w-full border-collapse">
                                             <thead>
                                                 <tr className="border-b bg-gray-100">
@@ -552,11 +556,7 @@ export default function AdminDashboard() {
             {showNewEmployeeDialog && (
                 <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
                     <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            handleSubmit(handleSubmitFuncionario)
-                            }
-                        }
+                        <form
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
@@ -664,6 +664,7 @@ export default function AdminDashboard() {
                                     type="submit"
                                     disabled={isloading}
                                     onLoad={() => setIsLoading(true)}
+                                    onClick={handleSubmit(handleSubmitFuncionario)}
                                 >
                                     Salvar
                                 </button>

@@ -22,6 +22,7 @@ import { FileText, Filter } from "lucide-react";
 import { ChamadoInterface, Status } from '@/shared/types';
 import Rating from '@mui/material/Rating';
 import HistoricoChamado from '@/components/HistoricoChamado';
+import RefreshButton from '@/components/refreshButton/refreshButton';
 
 interface ApiResponse {
   _embedded: {
@@ -346,6 +347,7 @@ export default function Dashboard() {
 
             {/* List Cards */}
             <h1 className='text-center text-2xl font-montserrat text-[--cor-primaria]'>SEUS CHAMADOS</h1>
+            
             <div className="max-w-7xl mx-auto font-lato p-4 space-y-3">
             {filteredChamados.length === 0 ? (
                 <div className="flex items-center justify-center min-h-[300px]">
@@ -354,6 +356,7 @@ export default function Dashboard() {
               ) : (
                 <>
                   <div className="space-y-4">
+                  <RefreshButton refresh={fetchChamados} />
                     {visibleChamados.map((chamado) => {
                       const status = statusMapping(chamado.status);
                       return (

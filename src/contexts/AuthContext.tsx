@@ -23,8 +23,13 @@ type User = {
     email: string;
 }
 
-export type UpdateUserData = {
+export type UpdateCepData = {
     cep: string;
+}
+
+export type UpdateInfoData = {
+    name?: string;
+    birthDate?: string;
 }
 
 export type FuncionarioData = {
@@ -97,7 +102,8 @@ type AuthContextType = {
     signUp: (data: SignUpData) => Promise<void>,
     signOut: () => void,
     getCepApi: (cep: string) => Promise<any>,
-    updateUser: (data: UpdateUserData) => Promise<void>,
+    updateCep: (data: UpdateCepData) => Promise<void>,
+    updateInfo: (data: UpdateInfoData) => Promise<void>,
     changePassword: (data: any) => Promise<void>,
     oAuthSignIn: (googleData: any) => Promise<{ needsRegistration: boolean }>,
     oAuthSignUp: (profileData: ProfileData) => Promise<void>,
@@ -405,7 +411,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         }
     }
 
-    async function updateUser(data: UpdateUserData) {
+    async function updateCep(data: UpdateCepData) {
 
         const novoEndereco = await getCepApi(data.cep);
 
@@ -431,6 +437,36 @@ export function AuthProvider({children}: AuthProviderProps) {
             console.error("Erro ao atualizar usuário:", error);
             alert("Erro ao atualizar usuário. Tente novamente.");
         }
+    }
+
+    const updateInfo = async (data: UpdateInfoData) => {
+        const endereco = user?.cep ? await getCepApi(user.cep) : undefined;
+        
+        let userAtualizado: any = {   
+            id: user?.id,
+            cpf: user?.cpf,
+            dataCadastro: user?.dataCadastro,
+            cep: user?.cep,
+            rua: endereco?.logradouro,
+            bairro: endereco?.bairro,
+            cidade: endereco?.localidade,
+            uf: endereco?.uf
+        };
+
+        if (data.name && data.name.trim() !== '') {
+            userAtualizado.nome = data.name;
+        } else {
+            userAtualizado.nome = user?.nome;
+        }
+        
+        if (data.birthDate) {
+            userAtualizado.dataNascimento = data.birthDate;
+        } else {
+            userAtualizado.dataNascimento = user?.dataNascimento;
+        }
+
+        const response = await api.put('/api/usuario', userAtualizado);
+        setUser(response.data);
     }
 
     async function changePassword(data: any) {
@@ -518,7 +554,8 @@ export function AuthProvider({children}: AuthProviderProps) {
                 signUp,
                 signOut,
                 getCepApi,
-                updateUser,
+                updateCep,
+                updateInfo,
                 changePassword,
                 oAuthSignIn,
                 oAuthSignUp,
