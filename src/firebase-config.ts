@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD8hGCL-jDEiWJYd0PbWYPpYtF-VNt7n24",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: "fir-3mod25.firebaseapp.com",
     projectId: "fir-3mod25",
     storageBucket: "fir-3mod25.firebasestorage.app",

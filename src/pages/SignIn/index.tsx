@@ -2,15 +2,20 @@ import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Label } from "@/components/ui/label";
 import { AuthContext } from "@/contexts/AuthContext.tsx";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Chrome } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGoogleLogin } from '@react-oauth/google';
+import notificationService from "@/shared/services/notificationService.ts";
+import {myGetToken} from "../../firebase.ts"
+
 import toast from 'react-hot-toast';
 
 export default function SignIn() {
+
+    const [ , setTokenFound] = useState(false);
 
     const SignInSchema = z.object({
         login: z.string()
@@ -31,6 +36,10 @@ export default function SignIn() {
         await toast.promise(
             async () => {
                 await signIn(data);
+                const currentToken = await myGetToken(setTokenFound);
+                if(currentToken)
+                    await notificationService.setToken(currentToken)
+
             },
             {
                 loading: "Fazendo login...",
