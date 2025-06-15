@@ -60,10 +60,10 @@ const Profile = () => {
     const cepRegex = /^\d{5}-?\d{3}$/;
     if (!cepRegex.test(cep)) {
       setIsError(true);
-      return cep; // Return the invalid CEP to avoid setting it to undefined
+      return cep;
     }
     setIsError(false);
-    return cep.replace(/[^0-9]/g, ""); // Return the cleaned CEP
+    return cep.replace(/[^0-9]/g, "");
   };
   
   const changeAddress = async (cep: string) => {
@@ -103,7 +103,7 @@ const Profile = () => {
       async() => {
         console.log(data)
         await updateCep(data)
-        setConfirmation(false) // Fechar o pop-up após a confirmação
+        setConfirmation(false) 
         setHasChanges(true)
       },
       {
@@ -245,7 +245,7 @@ const Profile = () => {
                                                     }} disabled placeholder='Digite o UF'/>
                 </div>
               </div>
-              <CardFooter className="flex justify-end space-x-2">
+              <CardFooter className="flex justify-end space-x-2 mt-4">
                 <Button type='button' onClick={resetForm} variant="outline">Cancelar</Button>
                 <Button type="button" onClick={() => setConfirmation(true)} disabled={hasChanges} className='bg-[--cor-primaria] hover:bg-[#162547]'>Salvar alterações</Button>
               </CardFooter>

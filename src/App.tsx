@@ -7,7 +7,6 @@ import Contact from "@/pages/contact/index.tsx";
 import ResetPassword from "@/pages/resetPassword/ResetPassoword.tsx";
 import AdminDashboard from "./pages/Admin/index.tsx";
 import Dashboard from "./pages/homePage/homePage.tsx";
-import AbrirChamado from "./pages/abrirChamado/index.tsx"; // Nova importação
 import Profile from "./pages/Profile/index.tsx";
 import SignIn from "./pages/SignIn/index.tsx";
 import SignUp from "./pages/SignUp/index.tsx";
@@ -164,14 +163,7 @@ const App = () => {
                                 </PrivateRoute>
                             }
                         />
-                        <Route
-                            path="/abrir-chamado"
-                            element={
-                                <PrivateRoute>
-                                    <AbrirChamado />
-                                </PrivateRoute>
-                            }
-                        />
+
                         <Route
                             path="/redefinir-senha"
                             element={

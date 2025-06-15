@@ -58,180 +58,6 @@ const statusMapping = (apiStatus: string): Status => {
   return STATUS_MAP[apiStatus] || "PENDENTE"
 }
 
-// id: number;
-//     usuarioId: number;
-//     titulo: string;
-//     descricao: string;
-//     secretaria: string;
-//     dataAbertura: string;
-//     status: Status | string;
-//     latitude: number | null
-//     longitude: number | null
-//     fotoAntesUrl: string | null;
-//     fotoDepoisUrl: string | null;
-
-// const chamadosInventados: ChamadoInterface[] = [
-//   {
-//     id: 1,
-//     usuarioId: 1,
-//     titulo: "Problema com a internet",
-//     descricao: "A internet está muito lenta.",
-//     secretaria: "URBANISMO",
-//     dataAbertura: "2023-10-01 10:00:00",
-//     status: "PENDENTE",
-//     latitude: null,
-//     longitude: null,
-//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-//     fotoDepoisUrl: null,
-//     avaliacao: null,
-//     historicos: [
-//       {
-//         id: 1,
-//         chamadoId: 1,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-01 11:00:00",
-//         observacao: "Chamado aberto.",
-//         statusAnterior: "PENDENTE",
-//         statusNovo: "EM ANDAMENTO"
-//       },
-//       {
-//         id: 2,
-//         chamadoId: 1,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-02 12:00:00",
-//         observacao: "Técnico agendado para amanhã.",
-//         statusAnterior: "EM ANDAMENTO",
-//         statusNovo: "PENDENTE"
-//       }
-//     ]
-//   },
-//   {
-//     id: 2,
-//     usuarioId: 1,
-//     titulo: "Buraco na rua",
-//     descricao: "Há um buraco grande na rua principal.",
-//     secretaria: "INFRAESTRUTURA",
-//     dataAbertura: "2023-10-02 11:00:00",
-//     status: "CONCLUÍDO",
-//     latitude: null,
-//     longitude: null,
-//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-//     fotoDepoisUrl: null,
-//     avaliacao: null,
-//     historicos: [
-//       {
-//         id: 1,
-//         chamadoId: 2,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-02 12:00:00",
-//         observacao: "Chamado aberto.",
-//         statusAnterior: "PENDENTE",
-//         statusNovo: "EM ANDAMENTO"
-//       },
-//       {
-//         id: 2,
-//         chamadoId: 2,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-03 13:00:00",
-//         observacao: "Buraco consertado.",
-//         statusAnterior: "EM ANDAMENTO",
-//         statusNovo: "CONCLUÍDO"
-//       }
-//     ]
-//   },
-//   {
-//     id: 3,
-//     usuarioId: 1,
-//     titulo: "Lixo acumulado",
-//     descricao: "Há lixo acumulado na esquina da minha rua",
-//     secretaria: "SAÚDE",
-//     dataAbertura: "2023-10-03 12:00:00",
-//     status: "CONCLUÍDO",
-//     latitude: null,
-//     longitude: null,
-//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-//     fotoDepoisUrl: null,
-//     avaliacao: {
-//       id: 1,
-//       chamadoId: 3,
-//       usuarioId: 1,
-//       estrelas: 5,
-//       comentario: "Ótimo atendimento!",
-//       dataAvaliacao: "2023-10-04 13:00:00"
-//     },
-//     historicos: [
-//       {
-//         id: 1,
-//         chamadoId: 3,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-03 13:00:00",
-//         observacao: "Chamado aberto.",
-//         statusAnterior: "PENDENTE",
-//         statusNovo: "EM ANDAMENTO"
-//       },
-//       {
-//         id: 2,
-//         chamadoId: 3,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-04 14:00:00",
-//         observacao: "Lixo removido.",
-//         statusAnterior: "EM ANDAMENTO",
-//         statusNovo: "CONCLUÍDO"
-//       }
-//     ]
-//   },
-//   {
-//     id: 4,
-//     usuarioId: 1,
-//     titulo: "Falta de iluminação pública",
-//     descricao: "A iluminação da praça está apagada há dias.",
-//     secretaria: "URBANISMO",
-//     dataAbertura: "2023-10-04 13:00:00",
-//     status: "EM ANDAMENTO",
-//     latitude: 1,
-//     longitude: 1,
-//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-//     fotoDepoisUrl: null,
-//     avaliacao: null,
-//     historicos: [
-//       {
-//         id: 1,
-//         chamadoId: 4,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-04 14:00:00",
-//         observacao: "Chamado aberto.",
-//         statusAnterior: "PENDENTE",
-//         statusNovo: "EM ANDAMENTO"
-//       }
-//     ]
-//   },
-//   {
-//     id: 5,
-//     usuarioId: 1,
-//     titulo: "Problema com o transporte público",
-//     descricao: "O ônibus está sempre atrasado.",
-//     secretaria: "TRANSPORTE",
-//     dataAbertura: "2023-10-05 14:00:00",
-//     status: "EM ANDAMENTO",
-//     latitude: null,
-//     longitude: null,
-//     fotoAntesUrl: "https://t2.gstatic.com/images?q=tbn:ANd9GcTBLkUokRWxieS2uNcbZzQXKk8vXCHIF9JAhTcv2AXkfcIv5PhO",
-//     fotoDepoisUrl: null,
-//     avaliacao: null,
-//     historicos: [
-//       {
-//         id: 1,
-//         chamadoId: 5,
-//         funcionarioId: 1,
-//         dataModificacao: "2023-10-05 15:00:00",
-//         observacao: "Chamado aberto.",
-//         statusAnterior: "PENDENTE",
-//         statusNovo: "EM ANDAMENTO"
-//       }
-//     ]
-//   }
-// ]
-
 export default function Dashboard() {
 
   const { user } = useContext(AuthContext)
@@ -349,6 +175,10 @@ export default function Dashboard() {
             <h1 className='text-center text-2xl font-montserrat text-[--cor-primaria]'>SEUS CHAMADOS</h1>
             
             <div className="max-w-7xl mx-auto font-lato p-4 space-y-3">
+            <div className='flex justify-between items-center mb-4'>
+              <RefreshButton refresh={fetchChamados} />
+              <BotaoChamado onClick={() => setNovoChamadoDialogOpen(true)}/>
+            </div>
             {filteredChamados.length === 0 ? (
                 <div className="flex items-center justify-center min-h-[300px]">
                   <p className="text-gray-500">Nenhum chamado encontrado.</p>
@@ -356,7 +186,6 @@ export default function Dashboard() {
               ) : (
                 <>
                   <div className="space-y-4">
-                  <RefreshButton refresh={fetchChamados} />
                     {visibleChamados.map((chamado) => {
                       const status = statusMapping(chamado.status);
                       return (
@@ -441,11 +270,6 @@ export default function Dashboard() {
           </>
         )
       }
-
-      {/* Open Call Button */}
-      <div className="fixed z-10 bottom-0 left-0 right-0 flex justify-center mb-2">
-            <BotaoChamado onClick={() => setNovoChamadoDialogOpen(true)}/>
-      </div>
       <GetChamadoDialog
         chamado={selectedChamado}
         open={dialogOpen}

@@ -83,11 +83,124 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[900px] max-h-[90vh] p-0 overflow-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+            <DialogContent className="w-full max-w-[95vw] sm:max-w-[900px] max-h-[95vh] p-0 overflow-hidden rounded-md">
+                <div className="block md:hidden">
+                    <Tabs defaultValue="detalhes" className="h-full flex flex-col">
+                        <TabsList className="flex w-full justify-center h-12 items-center px-6 py-4">
+                            <TabsTrigger className="w-24 h-8 text-lg" value="detalhes">Detalhes</TabsTrigger>
+                            <TabsTrigger className="w-24 h-8 text-lg" value="fotos" disabled={!hasAnyPhotos}>Fotos</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="detalhes" className="overflow-y-auto max-h-[85vh]">
+                            <ScrollArea className="h-full">
+                                <div className="p-6">
+                                    <DialogHeader>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <DialogTitle className="text-xl">{chamado.titulo}</DialogTitle>
+                                            <Badge className={`${STATUS_COLORS[status]} text-white mr-6`}>
+                                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                                            </Badge>
+                                        </div>
+                                        <DialogDescription className="text-sm text-muted-foreground">
+                                            Chamado #{chamado.id} • Aberto em {formatDate(chamado.dataAbertura)}
+                                        </DialogDescription>
+                                    </DialogHeader>
+
+                                    <div className="mt-6">
+                                        <h3 className="text-sm font-medium mb-2">Descrição</h3>
+                                        <p className="text-sm text-muted-foreground whitespace-pre-line">{chamado.descricao}</p>
+                                    </div>
+
+                                    <div className="mt-6">
+                                        <h3 className="text-sm font-medium mb-2">Localização:</h3>
+                                        {chamado.latitude && chamado.longitude ? (
+                                            <iframe
+                                                src={`https://maps.google.com/maps?q=${chamado.latitude},${chamado.longitude}&markers=${chamado.latitude},${chamado.longitude}&z=15&output=embed`}
+                                                className="w-full h-[250px] sm:h-[300px] border rounded-md"
+                                                loading="lazy"
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                            />
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground">Localização não informada</p>
+                                        )}
+                                    </div>
+
+                                    {(status === "EM ANDAMENTO" || status === "CONCLUÍDO") && (
+                                        <div className="mt-6">
+                                            <h3 className="text-sm font-bold font-montserrat mb-2">Devolutiva do servidor público:</h3>
+                                            {chamado.historicos[chamado.historicos.length - 1].observacao.trim().length > 0 ? (
+                                                <Textarea className="bg-muted font-lato" readOnly value={chamado.historicos[chamado.historicos.length - 1].observacao} />
+                                            ) : (
+                                                <p className="text-sm text-muted-foreground">Nenhuma devolutiva registrada.</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {status === "CONCLUÍDO" && !chamado.avaliacao && (
+                                        <AvaliacaoArea id={chamado.id} atualizarChamado={() => { atualizarChamado && atualizarChamado(); }} />
+                                    )}
+                                    {status === "CONCLUÍDO" && chamado.avaliacao && (
+                                        <div className="mt-6">
+                                            <h3 className="text-sm font-bold font-montserrat mb-2">Sua avaliação:</h3>
+                                            <div className="flex items-center mb-2">
+                                                <Rating
+                                                    name="avaliacao"
+                                                    value={chamado.avaliacao.estrelas}
+                                                    readOnly
+                                                    precision={1}
+                                                />
+                                                <span className="ml-2 text-sm text-muted-foreground">
+                                                    {chamado.avaliacao.estrelas} Estrelas
+                                                </span>
+                                            </div>
+                                            {chamado.avaliacao.comentario && (
+                                                <Textarea
+                                                    value={chamado.avaliacao.comentario}
+                                                    readOnly
+                                                    className="bg-muted"
+                                                    rows={5}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </TabsContent>
+                        <TabsContent value="fotos" className="flex-1 px-6 pb-6 overflow-y-auto">
+                            <Tabs defaultValue={hasFotoAntes ? "antes" : "depois"} className="h-full flex flex-col">
+                                <TabsList className="grid w-full grid-cols-2 mb-2">
+                                    <TabsTrigger value="antes" disabled={!hasFotoAntes}>Antes</TabsTrigger>
+                                    <TabsTrigger value="depois" disabled={!hasFotoDepois}>Depois</TabsTrigger>
+                                </TabsList>
+                                {hasFotoAntes && imagemAntes && (
+                                    <TabsContent value="antes" className="h-full overflow-auto">
+                                        <div className="relative w-full rounded-md flex items-center justify-center">
+                                            <img
+                                                src={imagemAntes}
+                                                alt="Foto antes"
+                                                className="max-w-full object-contain max-h-[70vh]"
+                                            />
+                                        </div>
+                                    </TabsContent>
+                                )}
+                                {hasFotoDepois && imagemDepois && (
+                                    <TabsContent value="depois" className="h-full overflow-auto">
+                                        <div className="relative w-full rounded-md flex items-center justify-center">
+                                            <img
+                                                src={imagemDepois}
+                                                alt="Foto depois"
+                                                className="max-w-full object-contain max-h-[70vh]"
+                                            />
+                                        </div>
+                                    </TabsContent>
+                                )}
+                            </Tabs>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                <div className="hidden md:grid grid-cols-1 md:grid-cols-2 h-full overflow-hidden">
                     <ScrollArea className="h-full">
-                    <div className="p-6 overflow-y-auto max-h-[80vh]">
-                        
+                        <div className="p-6 overflow-y-auto max-h-[90vh]">
                             <DialogHeader>
                                 <div className="flex items-center justify-between mb-2">
                                     <DialogTitle className="text-xl">{chamado.titulo}</DialogTitle>
@@ -110,9 +223,7 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
                                 {chamado.latitude && chamado.longitude ? (
                                     <iframe
                                         src={`https://maps.google.com/maps?q=${chamado.latitude},${chamado.longitude}&markers=${chamado.latitude},${chamado.longitude}&z=15&output=embed`}
-                                        width="100%"
-                                        height="300"
-                                        className="border rounded-md"
+                                        className="w-full h-[250px] sm:h-[300px] border rounded-md"
                                         loading="lazy"
                                         referrerPolicy="no-referrer-when-downgrade"
                                     />
@@ -121,22 +232,17 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
                                 )}
                             </div>
 
-                            {(status === "EM ANDAMENTO" || status === "CONCLUÍDO")  && (
+                            {(status === "EM ANDAMENTO" || status === "CONCLUÍDO") && (
                                 <div className="mt-6">
                                     <h3 className="text-sm font-bold font-montserrat mb-2">Devolutiva do servidor público:</h3>
-                                    {
-                                        chamado.historicos[chamado.historicos.length - 1].observacao.trim().length > 0 ? (
-                                            <Textarea className="bg-muted font-lato" readOnly value={ chamado.historicos[chamado.historicos.length - 1].observacao}/>
-                                        ):
-                                        (
-                                            <p className="text-sm text-muted-foreground">Nenhuma devolutiva registrada.</p>
-                                        )
-                                    }
-                                          
+                                    {chamado.historicos[chamado.historicos.length - 1].observacao.trim().length > 0 ? (
+                                        <Textarea className="bg-muted font-lato" readOnly value={chamado.historicos[chamado.historicos.length - 1].observacao} />
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">Nenhuma devolutiva registrada.</p>
+                                    )}
                                 </div>
                             )}
 
-                            {/* AVALIAÇÂO - SE ESTIVER CONCLUÍDO */}
                             {status === "CONCLUÍDO" && !chamado.avaliacao && (
                                 <AvaliacaoArea id={chamado.id} atualizarChamado={() => { atualizarChamado && atualizarChamado(); }} />
                             )}
@@ -164,15 +270,11 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
                                     )}
                                 </div>
                             )}
-
-                            {/* HISTÓRICO */}
-                        
-                    </div>
+                        </div>
                     </ScrollArea>
 
-
                     {hasAnyPhotos ? (
-                        <div className="bg-muted border-l h-full flex flex-col">
+                        <div className="bg-muted border-l h-full max-h-[90vh] flex flex-col">
                             <Tabs defaultValue={hasFotoAntes ? "antes" : "depois"} className="h-full flex flex-col">
                                 <div className="px-6 pt-6 pb-2">
                                     <h3 className="text-sm font-medium mb-2">Fotos</h3>
@@ -212,7 +314,7 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
                             </Tabs>
                         </div>
                     ) : (
-                        <div className="bg-muted border-l flex items-center justify-center p-6">
+                        <div className="bg-muted border-l flex items-center justify-center p-6 h-full">
                             <p className="text-muted-foreground text-center">Nenhuma foto disponível para este chamado</p>
                         </div>
                     )}

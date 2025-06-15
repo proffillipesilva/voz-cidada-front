@@ -60,7 +60,7 @@ export default function SignIn() {
                         success: (result) => {
                             return result.needsRegistration
                                 ? "Complete seu cadastro para continuar"
-                                : "Login com Google realizado com sucesso!";
+                                : "Login realizado com sucesso!";
                         },
                         error: (err) => {
                             return err instanceof Error ? err.message : "Ocorreu um erro ao fazer login com Google";

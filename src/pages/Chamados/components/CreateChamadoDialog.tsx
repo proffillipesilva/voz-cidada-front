@@ -193,11 +193,6 @@ export default function CreateChamadoDialog({
     const isValid = await form.trigger(fields as any);
     if (isValid) {
       setStep(step + 1);
-    } else {
-      // Mostra os erros de validação
-      Object.entries(form.formState.errors).forEach(([_, error]) => {
-        toast.error((error as { message?: string })?.message || "Preencha todos os campos obrigatórios");
-      });
     }
   };
 
@@ -286,7 +281,7 @@ export default function CreateChamadoDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-[95%] md:max-w-[500px] rounded-md">
         <Form {...form}>
           <div className="space-y-4">
             <DialogHeader>

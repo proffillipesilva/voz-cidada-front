@@ -56,7 +56,7 @@ export default function ResetPassword() {
 
             setTimeout(() => {
                 navigate("/conta");
-            }, 3500);
+            }, 3000);
         } catch (err) {
             setError("Ocorreu um erro ao alterar a senha. Tente novamente.");
         } finally {

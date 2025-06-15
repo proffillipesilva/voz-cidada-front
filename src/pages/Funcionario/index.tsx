@@ -718,7 +718,7 @@ export default function FuncionarioDashboard() {
                                                                 Alterar situação do chamado
                                                             </Button>
                                                         </DialogTrigger>
-                                                        <DialogContent>
+                                                        <DialogContent className="w-[90%]">
                                                             <DialogHeader>
                                                                 <DialogTitle className="text-[--cor-primaria]">Alterar situação do chamado</DialogTitle>
                                                                 <DialogDescription>

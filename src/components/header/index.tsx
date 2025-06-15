@@ -124,13 +124,16 @@ function Header() {
                                 </button>
                                 <div className={`w-full overflow-hidden transition-all duration-300 ${showConta ? 'max-h-40' : 'max-h-0'}`}>
                                     <nav className='flex flex-col items-center gap-4 py-2 text-sm'>
-                                        <Link 
+                                        { !admin && (
+                                            <Link 
                                             to="/conta" 
                                             className="hover:underline w-full text-center py-1"
                                             onClick={() => setShowMenu(false)}
                                         >
                                             CONFIGURAÇÕES
                                         </Link>
+                                        )}
+                                        
                                         <button 
                                             onClick={() => {
                                                 signOut()
@@ -146,7 +149,8 @@ function Header() {
                             </div>
 
                             {/* Links de Navegação */}
-                            <nav className="flex flex-col items-center gap-6 w-full">
+                            { !admin && (
+                                <nav className="flex flex-col items-center gap-6 w-full">
                                 <Link 
                                     to="/" 
                                     className="hover:underline w-full text-center py-2 border-b border-white/20"
@@ -169,17 +173,8 @@ function Header() {
                                     FALE CONOSCO
                                 </Link>
                             </nav>
-
-                            {/* Botão Dashboard - Mobile */}
-                            {!rotasOcultas.includes(location.pathname) && (
-                                <Link 
-                                    to={'/dashboard'} 
-                                    className="w-full max-w-xs mt-4"
-                                    onClick={() => setShowMenu(false)}
-                                >
-                                    <BotaoChamado className="bg-[--cor-secundaria4] font-montserrat text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors w-full" />
-                                </Link>
                             )}
+                            
                         </div>
                     </div>
                 </aside>

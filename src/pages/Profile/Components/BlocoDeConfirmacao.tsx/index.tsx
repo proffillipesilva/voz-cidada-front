@@ -11,7 +11,7 @@ const BlocoConfirmacao = ({ setConfirmation, onConfirm }: ConfirmationDialogProp
   return (
     <Dialog open={true} onOpenChange={setConfirmation}>
       <DialogContent className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div className="bg-white w-[90%] p-6 rounded-lg shadow-lg max-w-md w-full">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Confirmar alterações</DialogTitle>
           </DialogHeader>
