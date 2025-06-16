@@ -144,18 +144,18 @@ export default function CreateChamadoDialog({
   useEffect(() => {
     const latitude = form.watch('latitude');
     const longitude = form.watch('longitude');
-
+  
     if (mapRef.current && latitude && longitude) {
       if (markerRef.current) {
         markerRef.current.setLatLng([latitude, longitude]);
       } else {
-        markerRef.current = L.marker([latitude, longitude]).addTo(mapRef.current);
+        markerRef.current = L.marker([latitude, longitude], { icon: customIcon }).addTo(mapRef.current);
       }
-
-      // Centraliza o mapa nas novas coordenadas
+  
       mapRef.current.setView([latitude, longitude]);
     }
   }, [form.watch('latitude'), form.watch('longitude')]);
+  
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -207,30 +207,107 @@ export default function CreateChamadoDialog({
     onOpenChange(open);
   };
 
-  const handleGetLocation = () => {
+  const checkGeolocationPermission = async () => {
+    try {
+      // Essa API é experimental, mas suportada na maioria dos navegadores modernos
+      const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+      
+      if (permissionStatus.state === 'granted') {
+        return true;
+      } else if (permissionStatus.state === 'prompt') {
+        return true; // Podemos tentar, o navegador irá pedir permissão
+      } else {
+        toast.error("Permissão de localização negada. Por favor, habilite nas configurações do seu navegador.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Erro ao verificar permissão:", error);
+      return true; // Se a API não estiver disponível, tentamos mesmo assim
+    }
+  };
+  
+  const handleGetLocation = async () => {
     if (!navigator.geolocation) {
       toast.error("Geolocalização não suportada pelo navegador");
       return;
     }
-
+  
+    const hasPermission = await checkGeolocationPermission();
+    if (!hasPermission) return;
+  
+    toast.loading("Obtendo localização...", { id: "geolocation" });
+  
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const pos = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-
+  
         form.setValue("latitude", pos.lat);
         form.setValue("longitude", pos.lng);
         setLocationInformed(true);
+        toast.success("Localização obtida com sucesso!", { id: "geolocation" });
+        
+        // Centraliza o mapa na nova posição
+        if (mapRef.current) {
+          mapRef.current.setView([pos.lat, pos.lng], 15);
+        }
       },
       (error) => {
         console.error("Erro ao obter localização:", error);
-        toast.error("Não foi possível obter a localização");
+        let errorMessage = "Não foi possível obter a localização";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Permissão de localização negada. Por favor, habilite nas configurações do seu navegador.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Informações de localização indisponíveis.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "A requisição de localização expirou.";
+            break;
+        }
+        
+        toast.error(errorMessage, { id: "geolocation" });
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { 
+        enableHighAccuracy: true, 
+        timeout: 10000,
+        maximumAge: 0
+      }
     );
   };
+
+  const handleGetLocationByAddress = async (address: string) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        
+        form.setValue("latitude", lat);
+        form.setValue("longitude", lon);
+        setLocationInformed(true);
+        
+        if (mapRef.current) {
+          mapRef.current.setView([lat, lon], 15);
+        }
+        
+        toast.success("Localização encontrada pelo endereço!");
+      } else {
+        toast.error("Endereço não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro na geocoding:", error);
+      toast.error("Erro ao buscar endereço");
+    }
+  };
+
+  
 
   const onSubmit = async (values: ChamadoFormValues) => {
     if (step < 2) return;
@@ -338,6 +415,7 @@ export default function CreateChamadoDialog({
 
               {step === 1 && (
                 <>
+                <div className="space-y-4">
                   <Button
                     type="button"
                     onClick={handleGetLocation}
@@ -346,8 +424,34 @@ export default function CreateChamadoDialog({
                     <MapPin className="mr-2 h-4 w-4" />
                     Usar Localização Atual
                   </Button>
-
-                  <div id="map" ref={mapContainerRef} className="relative h-[300px] w-full rounded-md overflow-hidden border" />
+            
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                    <span className="text-sm text-gray-500">OU</span>
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                  </div>
+            
+                  <div className="flex gap-2">
+                    <Input 
+                      type="text" 
+                      placeholder="Digite um endereço (ex: Rua, número, cidade)" 
+                      id="addressInput"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const address = (document.getElementById('addressInput') as HTMLInputElement)?.value;
+                        if (address) handleGetLocationByAddress(address);
+                      }}
+                      className="text-[--cor-primaria] bg-white border-[--cor-primaria] hover:border-none hover:bg-[--cor-primaria2] hover:text-white"
+                    >
+                      Buscar
+                    </Button>
+                  </div>
+                </div>
+            
+                <div id="map" ref={mapContainerRef} className="relative h-[300px] w-full rounded-md overflow-hidden border mt-4" />
 
                   {!locationInformed && form.formState.errors.latitude && (
                     <p className="text-sm font-medium text-destructive">
