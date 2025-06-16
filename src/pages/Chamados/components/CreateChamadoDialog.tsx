@@ -281,7 +281,7 @@ export default function CreateChamadoDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="max-w-[95%] md:max-w-[500px] rounded-md">
+      <DialogContent className="max-w-[98%] md:max-w-[500px] rounded-md">
         <Form {...form}>
           <div className="space-y-4">
             <DialogHeader>
@@ -499,7 +499,7 @@ export default function CreateChamadoDialog({
                       disabled={isSubmitting}
                       onClick={form.handleSubmit(onSubmit)}
                       className="text-[--cor-primaria] bg-white border-[--cor-primaria] hover:border-none hover:bg-[--cor-primaria2] hover:text-white">
-                      {isSubmitting ? "Enviando..." : "Enviar Chamado"}
+                      {isSubmitting ? "Enviando..." : "Enviar"}
                     </Button>
                 )}
               </div>

@@ -407,16 +407,6 @@ export default function AdminDashboard() {
                                     Chamados
                                 </button>
                             </div>
-
-                            <div className={`flex gap-2 ${activeTab === "employees" ? "" : "hidden"}`}>
-                                <button
-                                    className="inline-flex items-center justify-center rounded-md bg-[#1e88e5] px-4 py-2 text-sm font-medium text-white hover:bg-[#1976d2] focus:outline-none focus:ring-2 focus:ring-[#1e88e5] focus:ring-offset-2"
-                                    onClick={() => setShowNewEmployeeDialog(true)}
-                                >
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Novo Funcionário
-                                </button>
-                            </div>
                         </div>
 
                         {/* Sectors Tab Content */}
@@ -461,7 +451,16 @@ export default function AdminDashboard() {
 
                         {/* Employees Tab Content */}
                         <div className={activeTab === "employees" ? "block" : "hidden"}>
-                            <div className="rounded-lg border bg-white shadow">
+                            <div className="flex items-center justify-end"> 
+                                <button
+                                        className="inline-flex items-center justify-center rounded-md bg-[#1e88e5] px-4 py-2 text-sm font-medium text-white hover:bg-[#1976d2] focus:outline-none focus:ring-2 focus:ring-[#1e88e5] focus:ring-offset-2"
+                                        onClick={() => setShowNewEmployeeDialog(true)}
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Novo Funcionário
+                                </button>
+                            </div>
+                            <div className="rounded-lg border bg-white shadow mt-4">
                                 <div className="overflow-x-auto">
                                     <table className="w-full border-collapse">
                                         <thead>
@@ -525,8 +524,8 @@ export default function AdminDashboard() {
 
                         {/* Chamados Tab content */}
                         <div className={activeTab === "chamados" ? "block" : "hidden"}>
-                            <h1 className="font-montserrat font-bold text-center text-2xl text-[--cor-primaria]">CHAMADOS NÃO ATRIBUÍDOS:</h1>
-                            <RefreshButton refresh={getChamados} className="mb-4" />
+                            <h1 className="font-montserrat font-bold text-center text-xl md:text-2xl text-[--cor-primaria]">CHAMADOS NÃO ATRIBUÍDOS:</h1>
+                            <RefreshButton refresh={getChamados} className="mb-4 mt-4 md:mt-0" />
                             <div className="rounded-lg border font-lato bg-white shadow">
                                 
                                 {chamados.length === 0 ? (

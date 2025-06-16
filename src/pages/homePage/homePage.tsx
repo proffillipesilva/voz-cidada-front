@@ -176,7 +176,7 @@ export default function Dashboard() {
             
             <div className="max-w-7xl mx-auto font-lato p-4 space-y-3">
             <div className='flex justify-between items-center mb-4'>
-              <RefreshButton refresh={fetchChamados} />
+              <RefreshButton refresh={fetchChamados} className={chamados.length > 0 ? "visible" : "invisible"} />
               <BotaoChamado onClick={() => setNovoChamadoDialogOpen(true)}/>
             </div>
             {filteredChamados.length === 0 ? (

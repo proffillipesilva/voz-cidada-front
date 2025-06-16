@@ -17,7 +17,7 @@ const HistoricoChamado = ({ dialogOpen, setDialogOpen, selectedChamado, isUser, 
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="max-w-[98%] md:max-w-[600px] rounded-xl">
             <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                 <span>Histórico do Chamado:</span>

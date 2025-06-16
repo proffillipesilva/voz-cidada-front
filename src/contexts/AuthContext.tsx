@@ -536,7 +536,6 @@ export function AuthProvider({children}: AuthProviderProps) {
     
         } catch (error) {
             console.error("Erro durante o cadastro OAuth:", error);
-            alert("Ocorreu um erro durante o cadastro. Tente novamente.");
         }
     }
 

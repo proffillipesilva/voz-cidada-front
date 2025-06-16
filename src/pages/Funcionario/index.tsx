@@ -245,9 +245,9 @@ export default function FuncionarioDashboard() {
                         fotoDepoisUrl: fotoDepoisUrl || prev.fotoDepoisUrl 
                     } : null))
                     setIsOpen(false)
-                    fetchChamados()
                     updateChamadoForm.reset()
                     setFotoDepoisPreview(null)
+                    fetchChamados()
                 } catch (error) {
                     console.error("Erro ao atualizar chamado:", error)
                 } finally {
@@ -394,19 +394,40 @@ export default function FuncionarioDashboard() {
                                     </CardHeader>
                                     <CardContent>
                                         <div className="mb-4">
+                                        {/* Versão Desktop - Tabs */}
+                                        <div className="hidden md:block">
                                             <Tabs
-                                                defaultValue="todos"
-                                                value={activeFilter}
-                                                onValueChange={setActiveFilter}
-                                                className="w-full"
+                                            defaultValue="todos"
+                                            value={activeFilter}
+                                            onValueChange={setActiveFilter}
+                                            className="w-full"
                                             >
-                                                <TabsList className="grid grid-cols-4 w-full">
-                                                    <TabsTrigger value="todos">Todos</TabsTrigger>
-                                                    <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
-                                                    <TabsTrigger value="andamento">Em Andamento</TabsTrigger>
-                                                    <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
-                                                </TabsList>
+                                            <TabsList className="grid grid-cols-4 w-full">
+                                                <TabsTrigger value="todos">Todos</TabsTrigger>
+                                                <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
+                                                <TabsTrigger value="andamento">Em Andamento</TabsTrigger>
+                                                <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
+                                            </TabsList>
                                             </Tabs>
+                                        </div>
+
+                                        {/* Versão Mobile - Select */}
+                                        <div className="md:hidden">
+                                            <Select
+                                            value={activeFilter}
+                                            onValueChange={setActiveFilter}
+                                            >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Filtrar por status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="todos">Todos</SelectItem>
+                                                <SelectItem value="pendentes">Pendentes</SelectItem>
+                                                <SelectItem value="andamento">Em Andamento</SelectItem>
+                                                <SelectItem value="concluidos">Concluídos</SelectItem>
+                                            </SelectContent>
+                                            </Select>
+                                        </div>
                                         </div>
                                         <RefreshButton refresh={fetchChamados} className="mb-4" />
                                         <div className="rounded-md border overflow-auto h-[500px]">
@@ -467,7 +488,7 @@ export default function FuncionarioDashboard() {
                                                                                 <ImageIcon className="h-4 w-4" />
                                                                             </Button>
                                                                         </DialogTrigger>
-                                                                        <DialogContent>
+                                                                        <DialogContent >
                                                                             <DialogHeader>
                                                                                 <DialogTitle>Foto do chamado</DialogTitle>
                                                                                 <DialogDescription>Imagem enviada pelo cidadão</DialogDescription>
@@ -608,7 +629,7 @@ export default function FuncionarioDashboard() {
                                                                         <span>Visualizar imagem</span>
                                                                     </Button>
                                                                 </DialogTrigger>
-                                                                <DialogContent>
+                                                                <DialogContent className="max-w-[98%] md:max-w-[600px] rounded-xl">
                                                                     <DialogHeader>
                                                                         <DialogTitle>Foto do chamado</DialogTitle>
                                                                         <DialogDescription>Imagem enviada pelo cidadão</DialogDescription>
@@ -652,7 +673,7 @@ export default function FuncionarioDashboard() {
                                                                         <span>Histórico</span>
                                                                     </Button>
                                                                 </DialogTrigger>
-                                                                <DialogContent className="sm:max-w-[600px]">
+                                                                <DialogContent className="max-w-[98%] md:max-w-[600px] rounded-xl">
                                                                 <DialogHeader>
                                                                     <DialogTitle className="flex items-center gap-2">
                                                                     <span>Histórico do Chamado:</span>
@@ -718,7 +739,7 @@ export default function FuncionarioDashboard() {
                                                                 Alterar situação do chamado
                                                             </Button>
                                                         </DialogTrigger>
-                                                        <DialogContent className="w-[90%]">
+                                                        <DialogContent className="w-[90%] rounded-lg">
                                                             <DialogHeader>
                                                                 <DialogTitle className="text-[--cor-primaria]">Alterar situação do chamado</DialogTitle>
                                                                 <DialogDescription>
@@ -757,11 +778,11 @@ export default function FuncionarioDashboard() {
 
                                                                 <div className="flex flex-col space-y-2">
                                                                     <Label htmlFor="fotoDepois">Foto do Chamado (opcional)</Label>
-                                                                    
-                                                                    {fotoDepoisPreview || selectedChamado?.fotoDepoisUrl ? (
+
+                                                                    {fotoDepoisPreview ? (
                                                                         <div className="relative">
                                                                             <img
-                                                                                src={fotoDepoisPreview || selectedChamado?.fotoDepoisUrl || ""}
+                                                                                src={fotoDepoisPreview}
                                                                                 alt="Foto do chamado resolvido"
                                                                                 className="w-full h-48 object-cover rounded-md border"
                                                                             />
