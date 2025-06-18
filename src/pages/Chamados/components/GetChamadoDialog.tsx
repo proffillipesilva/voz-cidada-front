@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
-import api from "@/shared/axios.ts"
 import { ChamadoInterface, Status } from "@/shared/types"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Rating from '@mui/material/Rating';
@@ -46,8 +45,7 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
     const [imagemDepois, setImagemDepois] = useState<string | null>(null)
 
     useEffect(() => {
-        let antesObjectUrl: string | null = null
-        let depoisObjectUrl: string | null = null
+        
 
         const fetchImages = async () => {
             try {
