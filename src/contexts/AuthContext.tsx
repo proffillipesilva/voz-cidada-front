@@ -252,7 +252,9 @@ export function AuthProvider({children}: AuthProviderProps) {
 
         api.get(`/api/usuario/auth/${decoded.sub}`)
             .then(response => {
-                setUser(response.data)
+                const userData = response.data;
+                userData.authUserId = decoded.sub;
+                setUser(userData)
                 console.log(user);
                 navigate("/dashboard");
             })
@@ -362,7 +364,9 @@ export function AuthProvider({children}: AuthProviderProps) {
                 } else {
                     api.get(`/api/usuario/auth/${decoded.sub}`)
                         .then(response => {
-                            setUser(response.data)
+                            const userData = response.data;
+                            userData.authUserId = decoded.sub;
+                            setUser(userData)
                         });
                     navigate("/dashboard");
                 }
@@ -422,6 +426,8 @@ export function AuthProvider({children}: AuthProviderProps) {
         setUserRoles(decoded.roles);
         setAuthStatus(decoded.auth_status)
         const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
+        
+        userResponse.data.authUserId = decoded.sub;
         setUser(userResponse.data);
 
         if (decoded.roles.includes("ROLE_ADMIN")) {
@@ -530,6 +536,7 @@ export function AuthProvider({children}: AuthProviderProps) {
     
             const decoded = jwtDecode<JWTClaims>(tokenBeforeUpdate);
             const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
+            userResponse.data.authUserId = decoded.sub;
             setUser(userResponse.data);
     
             setIsGoogleUser(true);
@@ -575,6 +582,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         
                 const decoded = jwtDecode<JWTClaims>(tokenBeforeUpdate);
                 const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
+                userResponse.data.authUserId = decoded.sub;
                 setUser(userResponse.data);
 
                 const updateTokens = await api.patch("/auth/updateAuthStatus");

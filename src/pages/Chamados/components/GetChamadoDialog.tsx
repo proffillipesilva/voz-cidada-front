@@ -52,14 +52,14 @@ export default function GetChamadoDialog({ chamado, open, onOpenChange, atualiza
         const fetchImages = async () => {
             try {
                 if (chamado?.fotoAntesUrl) {
-                    const response = await api.get(chamado.fotoAntesUrl, { responseType: 'blob' })
-                    antesObjectUrl = URL.createObjectURL(response.data)
-                    setImagemAntes(antesObjectUrl)
+                    //const response = await api.get(chamado.fotoAntesUrl, { responseType: 'blob' })
+                    //antesObjectUrl = URL.createObjectURL(response.data)
+                    setImagemAntes(chamado?.fotoAntesUrl)
                 }
                 if (chamado?.fotoDepoisUrl) {
-                    const response = await api.get(chamado.fotoDepoisUrl, { responseType: 'blob' })
-                    depoisObjectUrl = URL.createObjectURL(response.data)
-                    setImagemDepois(depoisObjectUrl)
+                    //const response = await api.get(chamado.fotoDepoisUrl, { responseType: 'blob' })
+                    //depoisObjectUrl = URL.createObjectURL(response.data)
+                    setImagemDepois(chamado?.fotoDepoisUrl)
                 }
             } catch (error) {
                 console.error("Erro ao carregar imagens:", error)
