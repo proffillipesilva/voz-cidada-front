@@ -83,6 +83,11 @@ export type ProfileData = {
     cpf: string
 }
 
+export type OwnerSignUpData = {
+    cargo: string,
+    cpf: string
+}
+
 type SignInResponse = AxiosResponse<SignInResponseData>
 
 type SignInResponseData = {
@@ -108,7 +113,8 @@ type AuthContextType = {
     oAuthSignIn: (googleData: any) => Promise<{ needsRegistration: boolean }>,
     oAuthSignUp: (profileData: ProfileData) => Promise<void>,
     isGoogleUser: boolean,
-    userProfilePicture: string | null
+    userProfilePicture: string | null,
+    ownerSignup: (data: OwnerSignUpData) => Promise<void>
 }
 
 export const AuthContext = createContext({} as AuthContextType)
@@ -146,6 +152,13 @@ export function AuthProvider({children}: AuthProviderProps) {
                 const decoded = jwtDecode<JWTClaims>(accessToken);
                 setUserRoles(decoded.roles);
                 setAuthStatus(decoded.auth_status)
+
+                if (decoded.auth_status === "SIGNIN" && decoded.roles.includes("ROLE_OWNER")) {
+                    setTimeout(() => {
+                        navigate("/signup/owner");
+                    }, 0);
+                    return;
+                }
 
                 if (decoded.auth_status === "SIGNIN") {
                     setTimeout(() => {
@@ -221,6 +234,13 @@ export function AuthProvider({children}: AuthProviderProps) {
         setAuthStatus(decoded.auth_status)
 
         setTokens(accessToken, refreshToken)
+
+        if (decoded.roles.includes("ROLE_OWNER") && decoded.auth_status === "SIGNIN") {
+            setTimeout(() => {
+                navigate("/signup/owner");
+            }, 0);
+            return;
+        }
 
         if (decoded.roles.includes("ROLE_ADMIN")) {
             api.get(`/api/funcionario/auth/${decoded.sub}`)
@@ -539,6 +559,49 @@ export function AuthProvider({children}: AuthProviderProps) {
         }
     }
 
+    async function ownerSignup(data: OwnerSignUpData) {
+        toast.promise(
+            async () => {
+                await api.post("/api/funcionario", {
+                    cargo: data.cargo,
+                    cpf: data.cpf,
+                    secretaria: "ALL",
+                })
+
+                const { "vozcidada.accessToken": tokenBeforeUpdate } = parseCookies();
+                if (!tokenBeforeUpdate) {
+                    throw new Error("Token de acesso não encontrado.");
+                }
+        
+                const decoded = jwtDecode<JWTClaims>(tokenBeforeUpdate);
+                const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
+                setUser(userResponse.data);
+
+                const updateTokens = await api.patch("/auth/updateAuthStatus");
+                const { accessToken, refreshToken } = updateTokens.data;
+                setTokens(accessToken, refreshToken);
+                setCookie(undefined, "vozcidada.authType", "OAuth", {
+                    maxAge: 60 * 60 * 1 // 1h
+                });
+    
+                // Decodificar o novo token e atualizar os estados
+                const newDecoded = jwtDecode<JWTClaims>(accessToken);
+                setUserRoles(newDecoded.roles);
+                setAuthStatus(newDecoded.auth_status);
+                
+                setTimeout(() => {
+                    navigate("/admin/dashboard", { replace: true });
+                }, 0);
+            },
+            {
+                loading: "Registrando...",
+                success: "Você foi registrado com sucesso!",
+                error: "Erro ao registrar. Tente novamente."
+            }
+        )
+        
+    }
+
     return (
         <AuthContext.Provider
             value={{
@@ -559,7 +622,8 @@ export function AuthProvider({children}: AuthProviderProps) {
                 oAuthSignIn,
                 oAuthSignUp,
                 isGoogleUser,
-                userProfilePicture
+                userProfilePicture,
+                ownerSignup
             }}>
             {children}
         </AuthContext.Provider>

@@ -15,6 +15,7 @@ import OAuthSignUp from "@/pages/OAuthSignUp";
 import { Toaster } from "react-hot-toast";
 
 import {myGetToken, onMessageListener} from "./firebase.ts"
+import OwnerSignUp from "./pages/ownerSignUp/index.tsx";
 
 type RouteProps = {
     children: ReactNode;
@@ -39,6 +40,9 @@ const PrivateRoute = ({ children, requiredRole }: RouteProps) => {
 
     // Primeiro acesso após OAuth?
     if (authStatus === "SIGNIN") {
+        if (userRoles?.includes("ROLE_OWNER")) {
+            return <Navigate to="/signup/owner" replace />;        
+        }
         return <Navigate to="/signup/oauth" replace />;
     }
 
@@ -124,6 +128,15 @@ const App = () => {
                                 <OAuthRoute>
                                     <OAuthSignUp />
                                 </OAuthRoute>
+                            }
+                        />
+
+                        <Route 
+                            path="/signup/owner"
+                            element={
+                                <PublicRoute>
+                                    <OwnerSignUp />
+                                </PublicRoute>
                             }
                         />
 

@@ -27,44 +27,6 @@ interface Funcionario {
     email?: string;
 }
 
-// const funcionariosInventados: Funcionario[] = [
-//     {
-//         id: 1,
-//         cpf: "123.456.789-00",
-//         cargo: "Engenheiro Civil",
-//         secretaria: "OBRAS",
-//         email: "example@example.com"
-//     },
-//     {
-//         id: 2,
-//         cpf: "987.654.321-00",
-//         cargo: "Arquiteto",
-//         secretaria: "URBANISMO",
-//         email: "example2@example.com"
-//     },
-//     {
-//         id: 3,
-//         cpf: "111.222.333-44",
-//         cargo: "Técnico de Obras",
-//         secretaria: "OBRAS",
-//         email: "example3@example.com"
-//     },
-//     {
-//         id: 4,
-//         cpf: "555.666.777-88",
-//         cargo: "Planejador Urbano",
-//         secretaria: "URBANISMO",
-//         email: "example4@example.com"
-//     },
-//     {
-//         id: 5,
-//         cpf: "999.888.777-66",
-//         cargo: "Coordenador de Projetos",
-//         secretaria: "OBRAS",
-//         email: "example5@example.com"
-//     }  
-// ]
-
 export default function AdminDashboard() {
     const { userRoles } = useContext(AuthContext);
     

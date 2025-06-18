@@ -1,13 +1,11 @@
 import { Bell, ChevronDown, ChevronUp, LogOut, Menu, User, X } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import BotaoChamado from '../botaoChamado'
 import { useContext, useState } from 'react'
 import { AuthContext } from '@/contexts/AuthContext'
 
 function Header() {
     const { isGoogleUser, user, admin, isAuthenticated, signOut, userProfilePicture } = useContext(AuthContext)
     const location = useLocation() 
-    const rotasOcultas = ["/dashboard", "/admin/dashboard", "/funcionario/dashboard", "/funcionario/historico", "/funcionario/profile",]
     const [showMenu, setShowMenu] = useState(false)
     const [showConta, setShowConta] = useState(false)
 
