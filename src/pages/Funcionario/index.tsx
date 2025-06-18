@@ -204,6 +204,7 @@ export default function FuncionarioDashboard() {
     
                     let fotoDepoisUrl = null
                     
+                    setIsLoading(true)
                     // Se houver uma nova imagem, faça o upload
                     if (formData.fotoDepoisUrl instanceof File) {
                         const imageFormData = new FormData()

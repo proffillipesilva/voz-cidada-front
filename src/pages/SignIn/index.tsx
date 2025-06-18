@@ -35,16 +35,21 @@ export default function SignIn() {
     const handleSignIn: SubmitHandler<SignInData> = async (data) => {
         await toast.promise(
             async () => {
-                await signIn(data);
+                const { needsRegistration } = await signIn(data);
                 const currentToken = await myGetToken(setTokenFound);
                 if(currentToken)
                     await notificationService.setToken(currentToken)
 
+                return { needsRegistration };
             },
             {
                 loading: "Fazendo login...",
-                success: "Login realizado com sucesso!",
-                error: (err) => err instanceof Error ? err.message : "Ocorreu um erro ao fazer login"
+                success: (result) => {
+                    return result.needsRegistration
+                        ? "Complete seu cadastro para continuar"
+                        : "Login realizado com sucesso!";
+                },
+                error: (err) => err instanceof Error ? err.message : "Ocorreu um erro ao efetuar o login"
             }
         )
        

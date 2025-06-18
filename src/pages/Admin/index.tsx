@@ -188,19 +188,27 @@ export default function AdminDashboard() {
     async function handleSubmitFuncionario(data: FuncionarioData) {
         toast.promise(
             async () => {
-                await authService.registerAdmin({ login: data.email, password: data.senha });
-                const { data: { accessToken } }: any = await authService.login({ login: data.email, password: data.senha });
-                const jwt = jwtDecode<JWTClaims>(accessToken);
-                await funcionarioService.createAdminProfile({ authId: jwt.sub, cpf: data.cpf, cargo: data.cargo, secretaria: data.secretaria });
-                await getFuncionarios();
-                setShowNewEmployeeDialog(false);
-                reset({
-                    cpf: "",
-                    cargo: "",
-                    secretaria: undefined,
-                    email: "",
-                    senha: ""
-                });
+                try {
+                    setIsLoading(true);
+                    await authService.registerAdmin({ login: data.email, password: data.senha });
+                    const { data: { accessToken } }: any = await authService.login({ login: data.email, password: data.senha });
+                    const jwt = jwtDecode<JWTClaims>(accessToken);
+                    await funcionarioService.createAdminProfile({ authId: jwt.sub, cpf: data.cpf, cargo: data.cargo, secretaria: data.secretaria });
+                    await getFuncionarios();
+                    setShowNewEmployeeDialog(false);
+                    reset({
+                        cpf: "",
+                        cargo: "",
+                        secretaria: undefined,
+                        email: "",
+                        senha: ""
+                    });
+                } catch (error) {
+                    console.error("Erro ao criar funcionário:", error);
+                    throw error; // Re-throw the error to be caught by toast     
+                }finally {
+                    setIsLoading(false);
+                }
             },
             {
                 loading: "Criando funcionário...",
@@ -217,6 +225,7 @@ export default function AdminDashboard() {
         toast.promise(
             async () => {
                 try {
+                    setIsLoading(true);
                     const updatedChamado = {
                         ...editingChamado,
                         secretaria: data.secretaria || editingChamado.secretaria,
@@ -231,6 +240,8 @@ export default function AdminDashboard() {
                     setEditingChamado(null);
                 } catch (error) {
                     console.error("Erro ao atualizar chamado:", error);
+                } finally {
+                    setIsLoading(false);
                 }
             },
             {
@@ -711,6 +722,7 @@ export default function AdminDashboard() {
                                 <button
                                     type="submit"
                                     className="inline-flex items-center justify-center rounded-md bg-[#1e88e5] px-4 py-2 text-sm font-medium text-white hover:bg-[#1976d2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                                    disabled={isloading}
                                 >
                                     Salvar Alterações
                                 </button>
