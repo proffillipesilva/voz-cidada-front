@@ -7,6 +7,7 @@ import { AuthContext, OwnerSignUpData } from "@/contexts/AuthContext.tsx";
 import { useContext } from "react";
 import { z } from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 
 interface FormField {
     id: string;
@@ -41,15 +42,12 @@ const formFields: FormField[] = [
 
 const SignUpSchema = z.object({
     cargo: z.string()
-        .nonempty("O cargo completo é obrigatório")
-        .min(5, "O cargo deve ter pelo menos 5 caracteres")
-        .refine(value => value.trim().split(' ').length >= 2, {
-            message: "Informe pelo menos nome e sobrenome"
-        })
-        .transform(cargo => {
-            return cargo.trim().split(' ').map((word) => {
-                return word[0].toLocaleUpperCase().concat(word.substring(1))
-            }).join(' ')
+        .nonempty("O cargo é obrigatório")
+        .min(3, "O cargo deve ter pelo menos 3 caracteres")
+        .max(50, "O cargo deve ter no máximo 50 caracteres")
+        .transform(cargo => cargo.trim())
+        .refine(cargo => cargo.length >= 3, {
+            message: "O cargo deve ter pelo menos 3 caracteres",
         }),
     cpf: z.string()
         .nonempty("O CPF é obrigatório.")
@@ -65,7 +63,28 @@ export default function OwnerSignUp() {
     });
     const { ownerSignup } = useContext(AuthContext);
 
+    function validateCPF(cpf: string) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        
+        let sum = 0;
+        for (let i = 0; i < 9; i++) sum += +cpf[i] * (10 - i);
+        let rev = 11 - (sum % 11);
+        if (rev === 10 || rev === 11) rev = 0;
+        if (rev !== +cpf[9]) return false;
+        
+        sum = 0;
+        for (let i = 0; i < 10; i++) sum += +cpf[i] * (11 - i);
+        rev = 11 - (sum % 11);
+        if (rev === 10 || rev === 11) rev = 0;
+        return rev === +cpf[10];
+    }
+
     const handleSignUp = async (data: OwnerSignUpData) => {
+        if (!validateCPF(data.cpf)) {
+            <toast className="error"></toast>("CPF inválido. Por favor, verifique o número e tente novamente.");
+            return;
+        }
         await ownerSignup(data);
     };
 

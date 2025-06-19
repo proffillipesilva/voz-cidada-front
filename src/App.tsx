@@ -41,7 +41,7 @@ const PrivateRoute = ({ children, requiredRole }: RouteProps) => {
     // Primeiro acesso após OAuth?
     if (authStatus === "SIGNIN") {
         if (userRoles?.includes("ROLE_OWNER")) {
-            return <Navigate to="/signup/owner" replace />;        
+            return <Navigate to="/signup/owner" replace />;
         }
         return <Navigate to="/signup/oauth" replace />;
     }
@@ -55,13 +55,18 @@ const PrivateRoute = ({ children, requiredRole }: RouteProps) => {
 };
 
 const PublicRoute = ({ children }: { children: ReactNode }) => {
-    const { isAuthenticated, loading, authStatus } = useContext(AuthContext);
+    const { isAuthenticated, loading, authStatus, userRoles } = useContext(AuthContext);
 
     if (loading) {
         return null;
     }
     if (authStatus === "SIGNIN") {
-        return <Navigate to="/signup/oauth" replace />;
+        if (userRoles?.includes("ROLE_OWNER")) {
+            return <Navigate to="/signup/owner" replace />;
+        }else {
+            return <Navigate to="/signup/oauth" replace />;
+        }
+        
     }
 
     if (isAuthenticated) {
@@ -70,12 +75,54 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
     return <>{children}</>;
 };
 
-const OAuthRoute = ({ children }: { children: ReactNode }) => {
-    const { authStatus, loading } = useContext(AuthContext);
+// Adicione um componente específico para a rota de owner
+const OwnerSignUpRoute = ({ children }: { children: ReactNode }) => {
+    const { isAuthenticated, loading, userRoles, authStatus, isGoogleUser } = useContext(AuthContext);
 
     if (loading) {
         return null;
     }
+
+    if (authStatus == null) {
+        return <Navigate to="/signin" replace />;
+    }
+
+    if (authStatus === "SIGNUP") {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    if (isGoogleUser && authStatus === "SIGNIN") {
+        // Se for usuário do Google, redireciona para a rota OAuth
+        return <Navigate to="/signup/oauth" replace />;     
+    }
+
+    // Permanece na página se:
+    // 1. Estiver autenticado E for OWNER E status SIGNIN (fluxo normal)
+    // OU
+    // 2. Estiver na URL /signup/owner especificamente (permite recarregamento)
+    if ((isAuthenticated && authStatus === "SIGNIN" && userRoles?.includes("ROLE_OWNER")) || 
+        window.location.pathname === "/signup/owner") {
+        return <>{children}</>;
+    }
+
+    if (!isAuthenticated) {
+        return <Navigate to="/signin" replace />;
+    }
+
+    return <Navigate to="/dashboard" replace />;
+};
+
+const OAuthRoute = ({ children }: { children: ReactNode }) => {
+    const { authStatus, loading, userRoles } = useContext(AuthContext);
+
+    if (loading) {
+        return null;
+    }
+
+    if (authStatus === "SIGNIN" && userRoles?.includes("ROLE_OWNER")) {
+        return <Navigate to="/signup/owner" replace />;
+    }
+
     if (authStatus === "SIGNUP") {
         return <Navigate to="/dashboard" replace />;
     }
@@ -131,15 +178,6 @@ const App = () => {
                             }
                         />
 
-                        <Route 
-                            path="/signup/owner"
-                            element={
-                                <PublicRoute>
-                                    <OwnerSignUp />
-                                </PublicRoute>
-                            }
-                        />
-
 
                         {/* ROTA ADMIN PRINCIPAL */}
                         <Route
@@ -148,6 +186,15 @@ const App = () => {
                                 <PrivateRoute requiredRole="ROLE_ADMIN">
                                     <AdminDashboard />
                                 </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/signup/owner"
+                            element={
+                                <OwnerSignUpRoute>
+                                    <OwnerSignUp />
+                                </OwnerSignUpRoute>
                             }
                         />
 

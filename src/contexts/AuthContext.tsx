@@ -7,6 +7,7 @@ import axios, {AxiosResponse} from "axios";
 import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
 import {initializeFirebaseMessaging} from "@/shared/firebaseMessaging.ts";
+import authService from "@/shared/services/authService";
 
 type User = {
     id: number;
@@ -103,7 +104,7 @@ type AuthContextType = {
     authStatus: string | null,
     isAuthenticated: boolean,
     loading: boolean,
-    signIn: (data: SignInData) => Promise<void>,
+    signIn: (data: SignInData) => Promise<{ needsRegistration?: boolean }>,
     signUp: (data: SignUpData) => Promise<void>,
     signOut: () => void,
     getCepApi: (cep: string) => Promise<any>,
@@ -145,67 +146,51 @@ export function AuthProvider({children}: AuthProviderProps) {
 
     useEffect(() => {
         const {"vozcidada.accessToken": accessToken} = parseCookies();
-        initializeFirebaseMessaging(accessToken)
+        initializeFirebaseMessaging(accessToken);
+        
         if (accessToken) {
-            setToken(accessToken);     // linha adicionada
+            setToken(accessToken);
             try {
                 const decoded = jwtDecode<JWTClaims>(accessToken);
                 setUserRoles(decoded.roles);
-                setAuthStatus(decoded.auth_status)
+                setAuthStatus(decoded.auth_status);
 
-                if (decoded.auth_status === "SIGNIN" && decoded.roles.includes("ROLE_OWNER")) {
-                    setTimeout(() => {
-                        navigate("/signup/owner");
-                    }, 0);
-                    return;
-                }
-
-                if (decoded.auth_status === "SIGNIN") {
-                    setTimeout(() => {
-                        navigate("/signup/oauth");
-                    }, 0);
-                }
-
-                if (decoded.roles.includes("ROLE_ADMIN")) {
+                // Não faça redirecionamentos aqui, apenas carregue os dados
+                if (decoded.roles.includes("ROLE_ADMIN") || decoded.roles.includes("ROLE_OWNER")) {
                     api.get(`/api/funcionario/auth/${decoded.sub}`)
                         .then(response => {
-                            setAdmin(response.data)
-                            navigate("/admin/dashboard");
+                            setAdmin(response.data);
                         })
                         .catch(() => {
-                            setAdmin(null)
-                            setUserRoles(null)
+                            setAdmin(null);
+                            setUserRoles(null);
                         })
                         .finally(() => {
-                            setLoading(false)
-                        })
+                            setLoading(false);
+                        });
                 } else {
                     api.get(`/api/usuario/auth/${decoded.sub}`)
                         .then(response => {
-                            setUser(response.data)
-                            console.log(user);
-                            navigate("/dashboard");
+                            setUser(response.data);
                         })
                         .catch(() => {
-                            setUser(null)
-                            setUserRoles(null)
-                            navigate("/signup/oauth")
+                            setUser(null);
+                            setUserRoles(null);
                         })
                         .finally(() => {
-                            setLoading(false)
-                        })
+                            setLoading(false);
+                        });
                 }
-
             } catch {
-                setAdmin(null)
-                setUser(null)
-                setUserRoles(null)
-                setLoading(false)
+                setAdmin(null);
+                setUser(null);
+                setUserRoles(null);
+                setLoading(false);
             }
         } else {
-            setLoading(false)
+            setLoading(false);
         }
-    }, [])
+    }, []);
 
     const setTokens = (accessToken: string, refreshToken: string) => {
         destroyCookie(undefined, "vozcidada.accessToken")
@@ -221,7 +206,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         setToken(accessToken);   // linha adicionada
     }
 
-    async function signIn({login, password}: SignInData) {
+    async function signIn({login, password}: SignInData): Promise<{ needsRegistration?: boolean }> {
         const response: SignInResponse = await api.post("/auth/login", {
             login,
             password
@@ -232,35 +217,27 @@ export function AuthProvider({children}: AuthProviderProps) {
 
         setUserRoles(decoded.roles);
         setAuthStatus(decoded.auth_status)
-
         setTokens(accessToken, refreshToken)
 
-        if (decoded.roles.includes("ROLE_OWNER") && decoded.auth_status === "SIGNIN") {
-            setTimeout(() => {
-                navigate("/signup/owner");
-            }, 0);
-            return;
+        if (decoded.auth_status === "SIGNIN") {
+            return { needsRegistration: true };
         }
 
         if (decoded.roles.includes("ROLE_ADMIN")) {
             api.get(`/api/funcionario/auth/${decoded.sub}`)
                 .then(response => {
                     setAdmin(response.data)
-                    navigate("/admin/dashboard");
+                })
+        } else {
+            api.get(`/api/usuario/auth/${decoded.sub}`)
+                .then(response => {
+                    const userData = response.data;
+                    userData.authUserId = decoded.sub;
+                    setUser(userData)
                 })
         }
-
-        api.get(`/api/usuario/auth/${decoded.sub}`)
-            .then(response => {
-                const userData = response.data;
-                userData.authUserId = decoded.sub;
-                setUser(userData)
-                console.log(user);
-                navigate("/dashboard");
-            })
-            .catch(() => {
-                navigate("/signup/oauth")
-            });
+        
+        return { needsRegistration: false }
     }
     
 
@@ -319,73 +296,73 @@ export function AuthProvider({children}: AuthProviderProps) {
     }
 
     async function oAuthSignIn(googleData: any): Promise<{ needsRegistration: boolean }> {
-    try {
-        const googleresponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-            headers: {
-                Authorization: `Bearer ${googleData.access_token}`
-            }
-        });
+      try {
+          const googleresponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: {
+                  Authorization: `Bearer ${googleData.access_token}`
+              }
+          });
 
-        setIsGoogleUser(true);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('isGoogleUser', JSON.stringify(true));
-        }
+          setIsGoogleUser(true);
+          if (typeof window !== 'undefined') {
+              localStorage.setItem('isGoogleUser', JSON.stringify(true));
+          }
 
-        const response = await api.post("/auth/oauth/google", {
-            email: googleresponse.data.email
-        });
-        
-        const pictureUrl = googleresponse.data.picture;    
+          const response = await api.post("/auth/oauth/google", {
+              email: googleresponse.data.email
+          });
 
-        setUserProfilePicture(pictureUrl);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('userProfilePicture', pictureUrl);
-        }
+          const pictureUrl = googleresponse.data.picture;    
 
-        const {accessToken, refreshToken} = response.data;
-        setTokens(accessToken, refreshToken);
+          setUserProfilePicture(pictureUrl);
+          if (typeof window !== 'undefined') {
+              localStorage.setItem('userProfilePicture', pictureUrl);
+          }
 
-        const decoded = jwtDecode<JWTClaims>(accessToken);
-        setUserRoles(decoded.roles);
-        setAuthStatus(decoded.auth_status);
+          const {accessToken, refreshToken} = response.data;
+          setTokens(accessToken, refreshToken);
 
-        setCookie(undefined, "vozcidada.authType", "OAuth", {
-            maxAge: 60 * 60 * 1 // 1h
-        });
+          const decoded = jwtDecode<JWTClaims>(accessToken);
+          setUserRoles(decoded.roles);
+          setAuthStatus(decoded.auth_status);
 
-        if (decoded.auth_status !== "SIGNIN") {
-            try {
-                if (decoded.roles.includes("ROLE_ADMIN")) {
-                    api.get(`/api/funcionario/auth/${decoded.sub}`)
-                        .then(response => {
-                            setAdmin(response.data)
-                        });
-                    navigate("/admin/dashboard");
-                } else {
-                    api.get(`/api/usuario/auth/${decoded.sub}`)
-                        .then(response => {
-                            const userData = response.data;
-                            userData.authUserId = decoded.sub;
-                            setUser(userData)
-                        });
-                    navigate("/dashboard");
-                }
-                return { needsRegistration: false };
-            } catch {
-                console.error("Não foi possível recuperar as informações de usuário.");
-                return { needsRegistration: false };
-            }
-        } else {
-            setTimeout(() => {
-                navigate("/signup/oauth");
-            }, 0);
-            return { needsRegistration: true };
-        }
-    } catch (error) {
-        console.error("Não foi possível se autenticar com sua conta Google.", error);
-        throw error; // Rejeita a promise para ser tratada no componente
-    }
-}
+          setCookie(undefined, "vozcidada.authType", "OAuth", {
+              maxAge: 60 * 60 * 1 // 1h
+          });
+
+          if (decoded.auth_status !== "SIGNIN") {
+              try {
+                  if (decoded.roles.includes("ROLE_ADMIN")) {
+                      api.get(`/api/funcionario/auth/${decoded.sub}`)
+                          .then(response => {
+                              setAdmin(response.data)
+                          });
+                      navigate("/admin/dashboard");
+                  } else {
+                      api.get(`/api/usuario/auth/${decoded.sub}`)
+                          .then(response => {
+                              const userData = response.data;
+                              userData.authUserId = decoded.sub;
+                              setUser(userData);
+                          });
+                      navigate("/dashboard");
+                  }
+                  return { needsRegistration: false };
+              } catch {
+                  console.error("Não foi possível recuperar as informações de usuário.");
+                  return { needsRegistration: false };
+              }
+          } else {
+              setTimeout(() => {
+                  navigate("/signup/oauth");
+              }, 0);
+              return { needsRegistration: true };
+          }
+      } catch (error) {
+          console.error("Não foi possível se autenticar com sua conta Google.", error);
+          throw error; // Rejeita a promise para ser tratada no componente
+      }
+  }
 
     async function signUp(data: SignUpData) {
 
@@ -426,7 +403,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         setUserRoles(decoded.roles);
         setAuthStatus(decoded.auth_status)
         const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
-        
+
         userResponse.data.authUserId = decoded.sub;
         setUser(userResponse.data);
 
@@ -566,48 +543,49 @@ export function AuthProvider({children}: AuthProviderProps) {
         }
     }
 
-    async function ownerSignup(data: OwnerSignUpData) {
-        toast.promise(
+    async function ownerSignup(data: OwnerSignUpData): Promise<void> {
+        return toast.promise(
             async () => {
+                const { "vozcidada.accessToken": token } = parseCookies();
+                if (!token) throw new Error("Token não encontrado");
+
+                const decoded = jwtDecode<JWTClaims>(token);
+
                 await api.post("/api/funcionario", {
-                    cargo: data.cargo,
+                    authId: decoded.sub,
                     cpf: data.cpf,
-                    secretaria: "ALL",
-                })
-
-                const { "vozcidada.accessToken": tokenBeforeUpdate } = parseCookies();
-                if (!tokenBeforeUpdate) {
-                    throw new Error("Token de acesso não encontrado.");
-                }
-        
-                const decoded = jwtDecode<JWTClaims>(tokenBeforeUpdate);
-                const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
-                userResponse.data.authUserId = decoded.sub;
-                setUser(userResponse.data);
-
-                const updateTokens = await api.patch("/auth/updateAuthStatus");
-                const { accessToken, refreshToken } = updateTokens.data;
-                setTokens(accessToken, refreshToken);
-                setCookie(undefined, "vozcidada.authType", "OAuth", {
-                    maxAge: 60 * 60 * 1 // 1h
+                    cargo: data.cargo,
+                    secretaria: "ALL"
                 });
-    
-                // Decodificar o novo token e atualizar os estados
-                const newDecoded = jwtDecode<JWTClaims>(accessToken);
-                setUserRoles(newDecoded.roles);
-                setAuthStatus(newDecoded.auth_status);
+
+                const authResponse = await authService.updateAuthStatus(token);
+                if (!authResponse.data.accessToken || !authResponse.data.refreshToken) {
+                    throw new Error("Tokens não recebidos na resposta");
+                }
                 
-                setTimeout(() => {
-                    navigate("/admin/dashboard", { replace: true });
-                }, 0);
+                const newDecoded = jwtDecode<JWTClaims>(authResponse.data.accessToken);
+                if (newDecoded.auth_status !== "SIGNUP") {
+                    console.log("Auth status não atualizado corretamente:", newDecoded.auth_status);
+                    throw new Error("Falha ao atualizar status de autenticação");
+                }
+
+                setTokens(authResponse.data.accessToken, authResponse.data.refreshToken);
+                setAuthStatus(newDecoded.auth_status);
+                setUserRoles(newDecoded.roles);
+
+                const userResponse = await api.get(`/api/funcionario/auth/${newDecoded.sub}`);
+                console.log("userResponse:", userResponse.data);
+                userResponse.data.authId = newDecoded.sub;
+                setAdmin(userResponse.data);
+
+                navigate("/admin/dashboard", { replace: true });
             },
             {
-                loading: "Registrando...",
-                success: "Você foi registrado com sucesso!",
-                error: "Erro ao registrar. Tente novamente."
+                loading: "Finalizando cadastro...",
+                success: "Cadastro de owner concluído!",
+                error: (err) => `Erro: ${err.message}`
             }
-        )
-        
+        );
     }
 
     return (
