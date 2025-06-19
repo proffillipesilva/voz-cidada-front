@@ -296,73 +296,73 @@ export function AuthProvider({children}: AuthProviderProps) {
     }
 
     async function oAuthSignIn(googleData: any): Promise<{ needsRegistration: boolean }> {
-    try {
-        const googleresponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-            headers: {
-                Authorization: `Bearer ${googleData.access_token}`
-            }
-        });
+      try {
+          const googleresponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: {
+                  Authorization: `Bearer ${googleData.access_token}`
+              }
+          });
 
-        setIsGoogleUser(true);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('isGoogleUser', JSON.stringify(true));
-        }
+          setIsGoogleUser(true);
+          if (typeof window !== 'undefined') {
+              localStorage.setItem('isGoogleUser', JSON.stringify(true));
+          }
 
-        const response = await api.post("/auth/oauth/google", {
-            email: googleresponse.data.email
-        });
-        
-        const pictureUrl = googleresponse.data.picture;    
+          const response = await api.post("/auth/oauth/google", {
+              email: googleresponse.data.email
+          });
 
-        setUserProfilePicture(pictureUrl);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('userProfilePicture', pictureUrl);
-        }
+          const pictureUrl = googleresponse.data.picture;    
 
-        const {accessToken, refreshToken} = response.data;
-        setTokens(accessToken, refreshToken);
+          setUserProfilePicture(pictureUrl);
+          if (typeof window !== 'undefined') {
+              localStorage.setItem('userProfilePicture', pictureUrl);
+          }
 
-        const decoded = jwtDecode<JWTClaims>(accessToken);
-        setUserRoles(decoded.roles);
-        setAuthStatus(decoded.auth_status);
+          const {accessToken, refreshToken} = response.data;
+          setTokens(accessToken, refreshToken);
 
-        setCookie(undefined, "vozcidada.authType", "OAuth", {
-            maxAge: 60 * 60 * 1 // 1h
-        });
+          const decoded = jwtDecode<JWTClaims>(accessToken);
+          setUserRoles(decoded.roles);
+          setAuthStatus(decoded.auth_status);
 
-        if (decoded.auth_status !== "SIGNIN") {
-            try {
-                if (decoded.roles.includes("ROLE_ADMIN")) {
-                    api.get(`/api/funcionario/auth/${decoded.sub}`)
-                        .then(response => {
-                            setAdmin(response.data)
-                        });
-                    navigate("/admin/dashboard");
-                } else {
-                    api.get(`/api/usuario/auth/${decoded.sub}`)
-                        .then(response => {
-                            const userData = response.data;
-                            userData.authUserId = decoded.sub;
-                            setUser(userData);
-                        });
-                    navigate("/dashboard");
-                }
-                return { needsRegistration: false };
-            } catch {
-                console.error("Não foi possível recuperar as informações de usuário.");
-                return { needsRegistration: false };
-            }
-        } else {
-            setTimeout(() => {
-                navigate("/signup/oauth");
-            }, 0);
-            return { needsRegistration: true };
-        }
-    } catch (error) {
-        console.error("Não foi possível se autenticar com sua conta Google.", error);
-        throw error; // Rejeita a promise para ser tratada no componente
-    }
-}
+          setCookie(undefined, "vozcidada.authType", "OAuth", {
+              maxAge: 60 * 60 * 1 // 1h
+          });
+
+          if (decoded.auth_status !== "SIGNIN") {
+              try {
+                  if (decoded.roles.includes("ROLE_ADMIN")) {
+                      api.get(`/api/funcionario/auth/${decoded.sub}`)
+                          .then(response => {
+                              setAdmin(response.data)
+                          });
+                      navigate("/admin/dashboard");
+                  } else {
+                      api.get(`/api/usuario/auth/${decoded.sub}`)
+                          .then(response => {
+                              const userData = response.data;
+                              userData.authUserId = decoded.sub;
+                              setUser(userData);
+                          });
+                      navigate("/dashboard");
+                  }
+                  return { needsRegistration: false };
+              } catch {
+                  console.error("Não foi possível recuperar as informações de usuário.");
+                  return { needsRegistration: false };
+              }
+          } else {
+              setTimeout(() => {
+                  navigate("/signup/oauth");
+              }, 0);
+              return { needsRegistration: true };
+          }
+      } catch (error) {
+          console.error("Não foi possível se autenticar com sua conta Google.", error);
+          throw error; // Rejeita a promise para ser tratada no componente
+      }
+  }
 
     async function signUp(data: SignUpData) {
 
