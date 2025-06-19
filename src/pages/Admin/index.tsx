@@ -202,14 +202,13 @@ export default function AdminDashboard() {
         return rev === +cpf[10];
     }
 
-    async function handleSubmitFuncionario(data: FuncionarioData) {
-        if (!validateCPF(data.cpf)) {
-            toast.error("CPF inválido.");
-            return;
-        }
+    async function handleSubmitFuncionario(data: FuncionarioData) { 
         toast.promise(
             async () => {
                 try {
+                    if (!validateCPF(data.cpf)) {
+                        throw new Error("CPF inválido.");
+                    }
                     setIsLoading(true);
                     await authService.registerAdmin({ login: data.email, password: data.senha });
                     const { data: { accessToken } }: any = await authService.login({ login: data.email, password: data.senha });
