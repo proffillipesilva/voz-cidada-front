@@ -574,7 +574,7 @@ export function AuthProvider({children}: AuthProviderProps) {
                 setUserRoles(newDecoded.roles);
 
                 const userResponse = await api.get(`/api/funcionario/auth/${newDecoded.sub}`);
-                console.log("userResponse:", userResponse.data);
+                
                 userResponse.data.authId = newDecoded.sub;
                 setAdmin(userResponse.data);
 
