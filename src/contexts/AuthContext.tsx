@@ -231,7 +231,9 @@ export function AuthProvider({children}: AuthProviderProps) {
         } else {
             api.get(`/api/usuario/auth/${decoded.sub}`)
                 .then(response => {
-                    setUser(response.data)
+                    const userData = response.data;
+                    userData.authUserId = decoded.sub;
+                    setUser(userData)
                 })
         }
         
@@ -339,7 +341,9 @@ export function AuthProvider({children}: AuthProviderProps) {
                 } else {
                     api.get(`/api/usuario/auth/${decoded.sub}`)
                         .then(response => {
-                            setUser(response.data)
+                            const userData = response.data;
+                            userData.authUserId = decoded.sub;
+                            setUser(userData);
                         });
                     navigate("/dashboard");
                 }
@@ -399,6 +403,8 @@ export function AuthProvider({children}: AuthProviderProps) {
         setUserRoles(decoded.roles);
         setAuthStatus(decoded.auth_status)
         const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
+
+        userResponse.data.authUserId = decoded.sub;
         setUser(userResponse.data);
 
         if (decoded.roles.includes("ROLE_ADMIN")) {
@@ -507,6 +513,7 @@ export function AuthProvider({children}: AuthProviderProps) {
     
             const decoded = jwtDecode<JWTClaims>(tokenBeforeUpdate);
             const userResponse = await api.get(`/api/usuario/auth/${decoded.sub}`);
+            userResponse.data.authUserId = decoded.sub;
             setUser(userResponse.data);
     
             setIsGoogleUser(true);
@@ -567,6 +574,8 @@ export function AuthProvider({children}: AuthProviderProps) {
                 setUserRoles(newDecoded.roles);
 
                 const userResponse = await api.get(`/api/funcionario/auth/${newDecoded.sub}`);
+                console.log("userResponse:", userResponse.data);
+                userResponse.data.authId = newDecoded.sub;
                 setAdmin(userResponse.data);
 
                 navigate("/admin/dashboard", { replace: true });
