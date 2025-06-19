@@ -542,25 +542,26 @@ export function AuthProvider({children}: AuthProviderProps) {
                 const { "vozcidada.accessToken": token } = parseCookies();
                 if (!token) throw new Error("Token não encontrado");
 
-                // 1. Atualiza authStatus
+                const decoded = jwtDecode<JWTClaims>(token);
+
+                await api.post("/api/funcionario", {
+                    authId: decoded.sub,
+                    cpf: data.cpf,
+                    cargo: data.cargo,
+                    secretaria: "ALL"
+                });
+
                 const authResponse = await authService.updateAuthStatus(token);
+                if (!authResponse.data.accessToken || !authResponse.data.refreshToken) {
+                    throw new Error("Tokens não recebidos na resposta");
+                }
                 
-                // 2. Verifica se a atualização foi bem-sucedida
                 const newDecoded = jwtDecode<JWTClaims>(authResponse.data.accessToken);
                 if (newDecoded.auth_status !== "SIGNUP") {
                     console.log("Auth status não atualizado corretamente:", newDecoded.auth_status);
                     throw new Error("Falha ao atualizar status de autenticação");
                 }
 
-                // 3. Completa cadastro do owner
-                await api.post("/api/funcionario", {
-                    authId: newDecoded.sub,
-                    cpf: data.cpf,
-                    cargo: data.cargo,
-                    secretaria: "ALL"
-                });
-
-                // 4. Atualiza estado e redireciona
                 setTokens(authResponse.data.accessToken, authResponse.data.refreshToken);
                 setAuthStatus(newDecoded.auth_status);
                 setUserRoles(newDecoded.roles);
