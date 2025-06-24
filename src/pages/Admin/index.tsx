@@ -185,10 +185,30 @@ export default function AdminDashboard() {
         resolver: zodResolver(editChamadoSchema)
     });
 
-    async function handleSubmitFuncionario(data: FuncionarioData) {
+    function validateCPF(cpf: string) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        
+        let sum = 0;
+        for (let i = 0; i < 9; i++) sum += +cpf[i] * (10 - i);
+        let rev = 11 - (sum % 11);
+        if (rev === 10 || rev === 11) rev = 0;
+        if (rev !== +cpf[9]) return false;
+        
+        sum = 0;
+        for (let i = 0; i < 10; i++) sum += +cpf[i] * (11 - i);
+        rev = 11 - (sum % 11);
+        if (rev === 10 || rev === 11) rev = 0;
+        return rev === +cpf[10];
+    }
+
+    async function handleSubmitFuncionario(data: FuncionarioData) { 
         toast.promise(
             async () => {
                 try {
+                    if (!validateCPF(data.cpf)) {
+                        throw new Error("CPF inválido.");
+                    }
                     setIsLoading(true);
                     await authService.registerAdmin({ login: data.email, password: data.senha });
                     const { data: { accessToken } }: any = await authService.login({ login: data.email, password: data.senha });
