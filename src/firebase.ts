@@ -17,6 +17,7 @@ const messaging = getMessaging(firebaseApp);
 export const myGetToken = (setTokenFound: (found: boolean) => void) => {
     return getToken(messaging, {vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY}).then((currentToken) => {
         if (currentToken) {
+            console.log("Token Ok!")
             console.log('current token for client: ', currentToken);
             setTokenFound(true);
             //notificationService.setToken(currentToken)
