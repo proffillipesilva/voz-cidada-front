@@ -6,7 +6,7 @@ import {ArrowLeft} from "lucide-react";
 import {SubmitHandler, useForm} from "react-hook-form"
 import { z } from 'zod'
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 import ProgressBar from "@/components/progressBar";
 import toast from "react-hot-toast";
 
@@ -58,9 +58,18 @@ export default function SignUp() {
 
     type SignUpData = z.infer<typeof SignUpSchema>
 
-    const { register, handleSubmit, formState: {errors}, trigger } = useForm<SignUpData>({
+    const { register, handleSubmit, formState: {errors}, trigger, watch, getValues, setError } = useForm<SignUpData>({
         resolver: zodResolver(SignUpSchema)
     })
+
+    const password = watch("password");
+    const confirmPassword = watch("confirmPassword");
+
+    useEffect(() => {
+        if (password && confirmPassword) {
+            trigger("confirmPassword");
+        }
+    }, [password, confirmPassword, trigger]);
 
     const handleNext = async (e: FormEvent) => {
         e.preventDefault();
@@ -68,8 +77,23 @@ export default function SignUp() {
             const isValid = await trigger("email");
             if (isValid) setStep((prev) => prev + 1);
         } else if (step === 1) {
-            const isValid = await trigger(["password", "confirmPassword"]);
-            if (isValid) setStep((prev) => prev + 1);
+            // Primeiro valida os campos individuais
+            const isValidPassword = await trigger("password");
+            const isValidConfirm = await trigger("confirmPassword");
+            
+            // Depois valida o refinamento (comparação das senhas)
+            const values = getValues();
+            const passwordsMatch = values.password === values.confirmPassword;
+            
+            if (isValidPassword && isValidConfirm && passwordsMatch) {
+                setStep((prev) => prev + 1);
+            } else if (!passwordsMatch) {
+                // Força o erro a aparecer no confirmPassword
+                setError("confirmPassword", {
+                    type: "manual",
+                    message: "As senhas precisam ser iguais."
+                });
+            }
         }
     }
 
