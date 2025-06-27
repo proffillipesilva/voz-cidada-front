@@ -82,7 +82,7 @@ export default function OwnerSignUp() {
 
     const handleSignUp = async (data: OwnerSignUpData) => {
         if (!validateCPF(data.cpf)) {
-            <toast className="error"></toast>("CPF inválido. Por favor, verifique o número e tente novamente.");
+            toast.error("CPF inválido. Por favor, verifique o número e tente novamente.");
             return;
         }
         await ownerSignup(data);
